@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}" />
+    <style>
+        /* ── Auth Page Layout ── */
+        body.auth-luxury {
+            margin: 0;
+            min-height: 100vh;
+            background: #0a0705;
+        }
+
+        .auth-luxury-bg {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
+        }
+
+        .auth-luxury-bg::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(10, 7, 5, 0.88) 0%, rgba(10, 7, 5, 0.72) 50%, rgba(30, 20, 10, 0.82) 100%);
+        }
+
+        .auth-luxury-wrap {
+            position: relative;
+            z-index: 2;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 80px 20px 40px;
+        }
+
+        /* ── Glass Card ── */
+        .auth-glass {
+            width: 100%;
+            max-width: 460px;
+            background: rgba(15, 10, 7, 0.70);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(212, 175, 55, 0.22);
+            border-radius: 24px;
+            padding: 44px 40px;
+            box-shadow: 0 32px 80px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+        }
+
+        /* ── Logo / Kicker ── */
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        .auth-logo-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #d4af37, #aa7c11);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.6rem;
+            color: #1a140b;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .auth-brand {
+            font-family: 'Cormorant Garamond', serif;
+            color: #d4af37;
+            font-size: 1.05rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            display: block;
+        }
+
+        /* ── Title ── */
+        .auth-title {
+            font-family: 'Cormorant Garamond', serif;
+            color: #d4af37;
+            font-size: 1.9rem;
+            font-weight: 700;
+            text-align: center;
+            margin: 0 0 28px;
+            letter-spacing: 0.04em;
+        }
+
+        /* ── Labels ── */
+        .auth-glass label {
+            display: block;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.78rem;
+            color: rgba(243, 228, 205, 0.55);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        /* ── Inputs ── */
+        .auth-input {
+            width: 100%;
+            box-sizing: border-box;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.95rem;
+            color: #f0e4cc;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            margin-bottom: 18px;
+        }
+
+        .auth-input::placeholder {
+            color: rgba(243, 228, 205, 0.3);
+        }
+
+        .auth-input:focus {
+            border-color: #d4af37;
+            box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+        }
+
+        /* ── Divider ── */
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 8px 0 18px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.78rem;
+            color: rgba(243, 228, 205, 0.3);
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: rgba(212, 175, 55, 0.18);
+        }
+
+        /* ── Primary Button ── */
+        .auth-btn-primary {
+            display: block;
+            width: 100%;
+            padding: 13px;
+            background: linear-gradient(90deg, #c9a227, #d4af37, #c9a227);
+            color: #1a120b;
+            font-family: 'Manrope', sans-serif;
+            font-weight: 700;
+            font-size: 0.92rem;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: opacity .2s, box-shadow .2s;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        .auth-btn-primary:hover {
+            opacity: .88;
+            box-shadow: 0 6px 28px rgba(212, 175, 55, 0.45);
+        }
+
+        /* ── Google Button ── */
+        .auth-btn-google {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: transparent;
+            border: 1px solid rgba(212, 175, 55, 0.35);
+            border-radius: 10px;
+            color: #f0e4cc;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.92rem;
+            font-weight: 500;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background .2s, border-color .2s;
+        }
+
+        .auth-btn-google:hover {
+            background: rgba(212, 175, 55, 0.08);
+            border-color: rgba(212, 175, 55, 0.6);
+        }
+
+        .auth-btn-google .g-mark {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #4285F4;
+        }
+
+        /* ── Helper text ── */
+        .auth-helper {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.85rem;
+            color: rgba(243, 228, 205, 0.5);
+            text-align: center;
+            margin-top: 18px;
+        }
+
+        .auth-helper a {
+            color: #d4af37;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .auth-helper a:hover {
+            text-decoration: underline;
+        }
+
+        /* ── Field errors ── */
+        .auth-field-error {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.8rem;
+            color: #e05555;
+            margin-top: -14px;
+            margin-bottom: 14px;
+        }
+
+        /* ── Alerts ── */
+        .auth-glass .alert {
+            border-radius: 10px;
+            margin-bottom: 16px;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.88rem;
+        }
+    </style>
+</head>
+
+<body class="auth-luxury">
+    <div class="auth-luxury-bg"></div>
+
+    <div class="auth-luxury-wrap">
+        <div class="auth-glass">
+            <!-- Logo -->
+            <div class="auth-logo">
+                <div class="auth-logo-icon">R</div>
+                <span class="auth-brand">Rivière Restaurant</span>
+            </div>
+
+            <h2 class="auth-title">Đăng Nhập</h2>
+
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div th:if="${param.error}"
+                class="bg-black/40 border border-yellow-500/50 p-3 rounded-lg mb-6 text-center shadow-lg text-yellow-400 font-bold text-base"
+                style="background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(234, 179, 8, 0.6) !important; color: #facc15 !important;">
+                Sai email, số điện thoại hoặc mật khẩu.
+            </div>
+            <div class="alert error" th:if="${param.googleOtpError}">Đăng nhập Google thành công nhưng gửi OTP thất bại.
+            </div>
+            <div class="alert error" th:if="${googleOtpErrorDetail}">Chi tiết lỗi: <span
+                    th:text="${googleOtpErrorDetail}"></span></div>
+            <div class="alert error" th:if="${param.googleEmailMissing}">Tài khoản Google không trả về email. Vui lòng
+                thử lại.</div>
+            <div class="alert info" th:if="${param.logout}">Bạn đã đăng xuất.</div>
+            <div class="alert info" th:if="${infoMessage}" th:text="${infoMessage}"></div>
+
+            <div th:if="${errorMessage != null}"
+                class="bg-black/40 border border-yellow-500/50 p-3 rounded-lg mb-6 text-center shadow-lg text-yellow-400 font-bold text-base"
+                style="background: rgba(0,0,0,0.6) !important; border: 1px solid rgba(234, 179, 8, 0.6) !important; color: #facc15 !important;"
+                th:text="${errorMessage}"></div>
+
+            <form th:action="@{/login}" method="post">
+                <label>Email hoặc Số điện thoại</label>
+                <input class="auth-input" type="text" name="username" placeholder="Nhập email hoặc số điện thoại"
+                    required />
+
+                <label>Mật khẩu</label>
+                <input class="auth-input" type="password" name="password" placeholder="Nhập mật khẩu" required />
+
+                <div style="text-align:right; margin-top:-10px; margin-bottom:20px;">
+                    <a th:href="@{/forgot-password}"
+                        style="font-family:'Manrope',sans-serif; font-size:0.85rem; color:rgba(212,175,55,0.7); text-decoration:none;">Quên
+                        mật khẩu?</a>
+                </div>
+
+                <button type="submit" class="auth-btn-primary">Đăng nhập</button>
+            </form>
+
+            <div class="auth-divider">hoặc</div>
+
+            <a class="auth-btn-google" th:href="@{/oauth2/authorization/google}">
+                <span class="g-mark">G</span>
+                Đăng nhập với Google
+            </a>
+
+            <p class="auth-helper">Chưa có tài khoản? <a th:href="@{/register}">Đăng ký ngay</a></p>
+        </div>
+    </div>
+</body>
+
+</html>

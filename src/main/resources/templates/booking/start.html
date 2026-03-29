@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đặt bàn | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+</head>
+
+<body class="landing-page">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Banner -->
+    <header class="luxe-hero" style="min-height: 42vh; padding-top: 120px;">
+        <div class="luxe-hero-overlay"></div>
+        <div class="luxe-lines" aria-hidden="true"></div>
+        <div class="container" style="position: relative; z-index: 2; text-align: center; padding-bottom: 48px;">
+            <span class="hero-kicker">Bước 1 / 3</span>
+            <h1
+                style="margin: 16px auto 0; color: #f9e7cb; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 0 18px 35px rgba(0,0,0,0.35);">
+                Tìm Bàn Trống
+            </h1>
+            <div class="hero-signature" style="font-size: clamp(1.3rem, 2.5vw, 1.8rem); margin-top: 10px;">Để chúng tôi
+                chuẩn bị cho bữa tối hoàn hảo</div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <section class="section section-charcoal" style="background:#0e0a08;">
+        <div class="container" style="display: flex; gap: 40px; flex-wrap: wrap; align-items: flex-start;">
+
+            <!-- Form Panel (signature-panel style) -->
+            <div class="signature-panel" style="flex: 1; min-width: 320px;">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Thông tin đặt bàn</span>
+                <h3 style="color: #d4af37; margin-bottom: 24px;">Chọn thời gian & số khách</h3>
+
+                <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+                <!-- AJAX Error Message Container -->
+                <div id="ajaxErrorContainer" class="alert error"
+                    style="display: none; background: #4a0404; border-color: #8b0000; color: #f9e7cb; margin-bottom: 20px; animation: fadeIn 0.3s ease;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <span style="font-size: 1.2rem;">✕</span>
+                        <span id="ajaxErrorMessage"></span>
+                    </div>
+                </div>
+
+                <form class="stack-form" th:action="@{/booking/tables}" method="post" th:data-vip="${currentUser != null and currentUser.isVip()}">
+                    <div class="booking-form-grid">
+                        <label class="block text-[#d4af37] font-medium text-sm mb-2">Số lượng người
+                            <input type="number" name="guestCount" min="1" max="30"
+                                th:value="${guestCount != null ? guestCount : 4}" required
+                                placeholder="Nhập số lượng người đi"
+                                class="text-gray-900 bg-white w-full px-3 py-2 border border-gray-300 rounded mt-1" />
+                        </label>
+
+                        <label class="block text-[#d4af37] font-medium text-sm mb-2">Thời lượng dùng bữa (giờ)
+                            <input type="number" name="durationHours" min="1" max="6"
+                                th:value="${durationHours != null ? durationHours : defaultDurationHours}" required
+                                placeholder="Nhập thời gian bạn dùng bữa"
+                                class="text-gray-900 bg-white w-full px-3 py-2 border border-gray-300 rounded mt-1" />
+                        </label>
+
+                        <label class="block text-[#d4af37] font-medium text-sm mb-2">Ngày giờ đến
+                            <input type="hidden" id="bookingDateTimeHidden" name="bookingDateTime" required
+                                th:value="${bookingDateTime != null ? #temporals.format(bookingDateTime, 'yyyy-MM-dd''T''HH:mm') : #temporals.format(minDateTime, 'yyyy-MM-dd''T''HH:mm')}" />
+                            <input type="hidden" id="minBookingDateTime"
+                                th:value="${#temporals.format(minDateTime, 'yyyy-MM-dd''T''HH:mm')}" />
+
+                            <!-- Ngày -->
+                            <input type="date" id="bookingDate" required class="booking-dark-input"
+                                style="margin-top: 8px; width: 100%;" />
+
+                            <!-- Giờ / Phút / AM-PM nằm ngang -->
+                            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="block text-[#d4af37] font-medium text-sm mb-2 text-center"
+                                        for="bookingHour">Giờ</label>
+                                    <select id="bookingHour" required class="booking-dark-select"></select>
+                                </div>
+                                <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="block text-[#d4af37] font-medium text-sm mb-2 text-center"
+                                        for="bookingMinute">Phút</label>
+                                    <select id="bookingMinute" required class="booking-dark-select"></select>
+                                </div>
+                                <div style="flex: 0 0 80px; display: flex; flex-direction: column; gap: 4px;">
+                                    <label class="block text-[#d4af37] font-medium text-sm mb-2 text-center"
+                                        for="bookingAmPm">Buổi</label>
+                                    <select id="bookingAmPm" required class="booking-dark-select">
+                                        <option value="AM">AM</option>
+                                        <option value="PM">PM</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <small class="muted-mini" id="bookingDateTimePreview"
+                                style="margin-top: 6px; display: block;">Đang chọn giờ...</small>
+                        </label>
+                    </div>
+
+                    <!-- Dark-theme input/select styles -->
+                    <style>
+                        .booking-dark-input,
+                        .booking-dark-select {
+                            background: rgba(255, 255, 255, 0.05);
+                            border: 1px solid rgba(212, 175, 55, 0.3);
+                            color: #e5d9c0;
+                            border-radius: 10px;
+                            padding: 10px 14px;
+                            font-family: 'Manrope', sans-serif;
+                            font-size: 0.95rem;
+                            appearance: none;
+                            -webkit-appearance: none;
+                            outline: none;
+                            transition: border-color 0.2s, box-shadow 0.2s;
+                            width: 100%;
+                            box-sizing: border-box;
+                            cursor: pointer;
+                        }
+
+                        .booking-dark-input:focus,
+                        .booking-dark-select:focus {
+                            border-color: #d4af37;
+                            box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2);
+                        }
+
+                        /* Ẩn calendar icon xấu trên Chrome */
+                        input[type="date"]::-webkit-calendar-picker-indicator {
+                            filter: invert(0.7) sepia(1) saturate(3) hue-rotate(5deg);
+                            cursor: pointer;
+                        }
+
+                        /* Màu option trong select */
+                        .booking-dark-select option {
+                            background: #1a120b;
+                            color: #e5d9c0;
+                        }
+                    </style>
+
+                    <button class="btn btn-gold" type="submit"
+                        style="margin-top: 8px; width: 100%; font-family: 'Manrope', sans-serif; font-weight: 700; letter-spacing: 1px; padding: 14px; text-transform: uppercase;">Tìm
+                        bàn phù hợp</button>
+                </form>
+
+                <div class="alert info" th:if="${bookingSuggestions != null}">
+                    <strong>Gợi ý từ hệ thống</strong>
+                    <p>Bàn bạn chọn đã bị trùng lịch. Bạn có thể thử các lựa chọn dưới đây.</p>
+
+                    <p
+                        th:if="${bookingSuggestions.alternativeTables != null and !#lists.isEmpty(bookingSuggestions.alternativeTables)}">
+                        <strong>Bàn khác cùng thời điểm:</strong></p>
+                    <ul
+                        th:if="${bookingSuggestions.alternativeTables != null and !#lists.isEmpty(bookingSuggestions.alternativeTables)}">
+                        <li th:each="table : ${bookingSuggestions.alternativeTables}"
+                            th:text="${table.tableName + ' - ' + table.capacity + ' chỗ - ' + table.location}"></li>
+                    </ul>
+
+                    <p
+                        th:if="${bookingSuggestions.availableTimeSlots != null and !#lists.isEmpty(bookingSuggestions.availableTimeSlots)}">
+                        <strong>Khung giờ khác cho cùng bàn:</strong></p>
+                    <ul
+                        th:if="${bookingSuggestions.availableTimeSlots != null and !#lists.isEmpty(bookingSuggestions.availableTimeSlots)}">
+                        <li th:each="slot : ${bookingSuggestions.availableTimeSlots}"
+                            th:text="${#temporals.format(slot.startTime, 'dd/MM HH:mm') + ' - ' + #temporals.format(slot.endTime, 'HH:mm')}">
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Info Panel (signature-panel style) -->
+            <aside class="signature-panel" style="width: 100%; max-width: 360px;">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Booking flow</span>
+                <h3 style="color: #d4af37; margin-bottom: 20px;">Luồng đặt bàn của bạn</h3>
+                <div class="timeline-list compact">
+                    <div class="timeline-item">
+                        <h4 style="color: #fde68a;">1. Tìm bàn</h4>
+                        <p style="color: rgba(243,228,205,0.75);">Nhập số lượng khách và thời gian để lọc bàn theo sức
+                            chứa.</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4 style="color: #fde68a;">2. Chọn bàn</h4>
+                        <p style="color: rgba(243,228,205,0.75);">Xem rõ kiểu bàn, loại ghế, vị trí và mô tả chi tiết.
+                        </p>
+                    </div>
+                    <div class="timeline-item">
+                        <h4 style="color: #fde68a;">3. Chọn món trước</h4>
+                        <p style="color: rgba(243,228,205,0.75);">Khách có thể đặt món trước để tiết kiệm thời gian phục
+                            vụ.</p>
+                    </div>
+                </div>
+                <div class="inline-tags" style="margin-top: 20px;">
+                    <span class="pill">Fine Dining</span>
+                    <span class="pill">Private Dining</span>
+                    <span class="pill">Luxury Experience</span>
+                </div>
+            </aside>
+        </div>
+    </section>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script>
+        (function () {
+            const bookingForm = document.querySelector("form.stack-form");
+            const hiddenDateTime = document.getElementById("bookingDateTimeHidden");
+            const minDateTime = document.getElementById("minBookingDateTime");
+            const bookingDate = document.getElementById("bookingDate");
+            const bookingHour = document.getElementById("bookingHour");
+            const bookingMinute = document.getElementById("bookingMinute");
+            const bookingAmPm = document.getElementById("bookingAmPm");
+            const preview = document.getElementById("bookingDateTimePreview");
+
+            if (!bookingForm || !hiddenDateTime || !bookingDate || !bookingHour || !bookingMinute || !bookingAmPm || !preview) return;
+
+            function pad(value) { return String(value).padStart(2, "0"); }
+
+            function parseIsoLocal(isoValue) {
+                if (!isoValue || typeof isoValue !== "string") return null;
+                const parts = isoValue.split("T");
+                if (parts.length !== 2) return null;
+                const datePart = parts[0].split("-").map(Number);
+                const timePart = parts[1].split(":").map(Number);
+                if (datePart.length !== 3 || timePart.length < 2) return null;
+                const dt = new Date(datePart[0], datePart[1] - 1, datePart[2], timePart[0], timePart[1], 0, 0);
+                return Number.isNaN(dt.getTime()) ? null : dt;
+            }
+
+            function toIsoLocal(date) {
+                return date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate()) + "T" + pad(date.getHours()) + ":" + pad(date.getMinutes());
+            }
+
+            function toDisplay12h(date) {
+                let hour = date.getHours();
+                const ampm = hour >= 12 ? "PM" : "AM";
+                hour = hour % 12;
+                if (hour === 0) hour = 12;
+                return pad(date.getDate()) + "/" + pad(date.getMonth() + 1) + "/" + date.getFullYear() + " " + pad(hour) + ":" + pad(date.getMinutes()) + " " + ampm;
+            }
+
+            function fillHourOptions() {
+                for (let h = 1; h <= 12; h++) { const o = document.createElement("option"); o.value = String(h); o.textContent = String(h); bookingHour.appendChild(o); }
+            }
+
+            function fillMinuteOptions() {
+                for (let m = 0; m <= 59; m++) { const o = document.createElement("option"); o.value = pad(m); o.textContent = pad(m); bookingMinute.appendChild(o); }
+            }
+
+            function setControlsFromDate(date) {
+                bookingDate.value = date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+                let hour = date.getHours();
+                const ampm = hour >= 12 ? "PM" : "AM";
+                hour = hour % 12; if (hour === 0) hour = 12;
+                bookingHour.value = String(hour);
+                bookingMinute.value = pad(date.getMinutes());
+                bookingAmPm.value = ampm;
+            }
+
+            function getDateFromControls() {
+                if (!bookingDate.value) return null;
+                let hour = Number(bookingHour.value);
+                const minute = Number(bookingMinute.value);
+                const ampm = bookingAmPm.value;
+                if (ampm === "AM" && hour === 12) hour = 0;
+                else if (ampm === "PM" && hour < 12) hour += 12;
+                const [year, month, day] = bookingDate.value.split("-").map(Number);
+                const dt = new Date(year, month - 1, day, hour, minute, 0, 0);
+                return Number.isNaN(dt.getTime()) ? null : dt;
+            }
+
+            function syncHiddenAndPreview() {
+                const selectedDate = getDateFromControls();
+                if (!selectedDate) { preview.textContent = "Vui lòng chọn ngày giờ hợp lệ."; return null; }
+                hiddenDateTime.value = toIsoLocal(selectedDate);
+                preview.textContent = "Bạn chọn: " + toDisplay12h(selectedDate);
+                return selectedDate;
+            }
+
+            fillHourOptions(); fillMinuteOptions();
+            const initialDate = parseIsoLocal(hiddenDateTime.value) || parseIsoLocal(minDateTime ? minDateTime.value : "") || new Date();
+            setControlsFromDate(initialDate); syncHiddenAndPreview();
+
+            bookingDate.addEventListener("change", syncHiddenAndPreview);
+            bookingHour.addEventListener("change", syncHiddenAndPreview);
+            bookingMinute.addEventListener("change", syncHiddenAndPreview);
+            bookingAmPm.addEventListener("change", syncHiddenAndPreview);
+
+            const submitBtn = bookingForm.querySelector('button[type="submit"]');
+            const errorContainer = document.getElementById("ajaxErrorContainer");
+            const errorMessageEl = document.getElementById("ajaxErrorMessage");
+
+            bookingForm.addEventListener("submit", async function (event) {
+                event.preventDefault(); // Luôn prevent mặc định để check AJAX
+
+                // 1. Đồng bộ và validate cơ bản
+                const selectedDate = syncHiddenAndPreview();
+                if (!selectedDate) return;
+
+                const minDate = parseIsoLocal(minDateTime ? minDateTime.value : "");
+                if (minDate && selectedDate < minDate) {
+                    preview.textContent = "Giờ đến phải lớn hơn thời điểm hiện tại ít nhất 1 giờ.";
+                    preview.style.color = "#ff4c4c";
+                    return;
+                }
+
+                // VIP Golden Hour UI Check
+                const isVipUser = bookingForm.getAttribute("data-vip") === "true";
+                const checkHour = selectedDate.getHours();
+                if (checkHour >= 17 && checkHour <= 20 && !isVipUser) {
+                    if (errorContainer && errorMessageEl) {
+                        errorMessageEl.textContent = "Khung giờ vàng (17h - 20h) chỉ dành riêng cho khách hàng VIP!";
+                        errorContainer.style.display = "block";
+                        errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        alert("Khung giờ vàng (17h - 20h) chỉ dành riêng cho khách hàng VIP!");
+                    }
+                    return;
+                }
+
+                preview.style.color = ""; // Reset màu nếu ok
+
+                // 2. Trạng thái Loading
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.dataset.originalText = submitBtn.textContent;
+                    submitBtn.textContent = "Đang kiểm tra bàn trống...";
+                    submitBtn.style.opacity = "0.7";
+                }
+                if (errorContainer) errorContainer.style.display = "none";
+
+                try {
+                    // 3. Gọi API kiểm tra
+                    const formData = new FormData(bookingForm);
+                    const params = new URLSearchParams();
+                    for (const pair of formData) {
+                        params.append(pair[0], pair[1]);
+                    }
+
+                    const response = await fetch("/api/booking/check-availability", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Accept": "application/json"
+                        },
+                        body: params.toString()
+                    });
+
+                    if (!response.ok) throw new Error("Lỗi hệ thống khi tìm bàn.");
+
+                    const data = await response.json();
+
+                    if (data.available) {
+                        // 4. Có bàn -> Tiến hành submit form thật để sang trang chọn bàn
+                        bookingForm.submit();
+                    } else {
+                        // 5. Hết bàn -> Hiện lỗi và giải phóng nút
+                        if (errorContainer && errorMessageEl) {
+                            errorMessageEl.textContent = data.message || "Rất tiếc, hiện không còn bàn trống.";
+                            errorContainer.style.display = "block";
+                            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }
+                        resetSubmitButton();
+                    }
+                } catch (err) {
+                    if (errorContainer && errorMessageEl) {
+                        errorMessageEl.textContent = err.message || "Đã xảy ra lỗi. Vui lòng thử lại.";
+                        errorContainer.style.display = "block";
+                    }
+                    resetSubmitButton();
+                }
+            });
+
+            function resetSubmitButton() {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = submitBtn.dataset.originalText || "Tìm bàn phù hợp";
+                    submitBtn.style.opacity = "";
+                }
+            }
+        })();
+    </script>
+</body>
+
+</html>

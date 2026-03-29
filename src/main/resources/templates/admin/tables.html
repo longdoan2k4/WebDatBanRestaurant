@@ -1,0 +1,533 @@
+﻿<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý bàn | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">Table manager</span>
+        <h1>Quản lý bàn ăn</h1>
+        <p>Thêm mới, chỉnh sửa mô tả bàn, kiểu bàn, ghế và sức chứa.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container admin-layout">
+        <div class="table-card">
+            <h3 th:text="${tableForm.id != null ? 'Chỉnh sửa bàn ăn' : 'Thêm bàn mới'}">Thêm bàn mới</h3>
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+            <form class="stack-form" th:action="@{/admin/tables/save}" th:object="${tableForm}" method="post">
+                <input type="hidden" th:field="*{id}"/>
+                <label>Tên bàn
+                    <input type="text" th:field="*{name}" placeholder="Bàn Lotus 01" required/>
+                </label>
+                <label>Số bàn / Mã bàn
+                    <input type="text" th:field="*{tableNumber}" placeholder="T1-01 hoặc VIP-02" required/>
+                </label>
+                <label>Kiểu bàn
+                    <input type="text" th:field="*{tableType}" placeholder="Bàn tròn" required/>
+                </label>
+                <label>Loại ghế
+                    <input type="text" th:field="*{chairType}" placeholder="Ghế tựa" required/>
+                </label>
+                <label>Sức chứa
+                    <input type="number" th:field="*{capacity}" min="1" max="50" required/>
+                </label>
+                <label>Tầng
+                    <input type="text" th:field="*{floor}" placeholder="Tầng 1" required/>
+                </label>
+                <label>Loại phòng
+                    <input type="text" th:field="*{roomType}" placeholder="Phòng VIP" required/>
+                </label>
+                <label>Vị trí
+                    <input type="text" th:field="*{areaPosition}" placeholder="Gần cửa sổ / Trung tâm" required/>
+                </label>
+                <label>Mô tả
+                    <textarea rows="4" th:field="*{description}" placeholder="Mô tả trải nghiệm, vị trí, phong cách..."></textarea>
+                </label>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" th:field="*{active}"/>
+                    <span>Đang hoạt động</span>
+                </label>
+
+                <div class="action-row">
+                    <button type="submit" class="btn btn-primary">Lưu bàn ăn</button>
+                    <a class="btn btn-ghost" th:href="@{/admin/tables}">Làm mới form</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Theo dõi theo giờ</span>
+                    <h3>Giám sát trạng thái bàn theo thời gian</h3>
+                </div>
+            </div>
+
+            <div class="filter-bar" id="monitorForm">
+                <input type="hidden" id="initialMonitorDateTime" th:value="${#temporals.format(monitorDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
+                <label>Ngày
+                    <input type="date" id="monitorDate"/>
+                </label>
+                <label>Giờ
+                    <select id="monitorHour"></select>
+                </label>
+                <label>Phút
+                    <select id="monitorMinute"></select>
+                </label>
+                <label>AM/PM
+                    <select id="monitorAmPm">
+                        <option value="AM">AM</option>
+                        <option value="PM">PM</option>
+                    </select>
+                </label>
+                <button class="btn btn-primary" type="button" id="applyMonitorBtn">Cập nhật trạng thái</button>
+                <button class="btn btn-ghost" type="button" id="backToNowBtn">Quay lại giờ hiện tại</button>
+            </div>
+            <p class="muted-mini">Theo dõi không cần tải lại trang. Thời điểm đang xem: <strong id="checkTimeLabel">-</strong></p>
+
+            <div class="booking-meta">
+                <div><strong>Tổng bàn hoạt động:</strong> <span id="totalTablesCount" th:text="${totalActiveTables}">0</span></div>
+                <div><strong>Trống:</strong> <span id="freeCount" th:text="${totalAvailableTables}">0</span></div>
+                <div><strong>Đang sử dụng:</strong> <span id="inUseCount" th:text="${totalActiveTables - totalAvailableTables}">0</span></div>
+                <div><strong>Sắp có khách:</strong> <span id="soonCount">0</span></div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Nhóm trạng thái</th>
+                        <th>Số bàn</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody id="statusSummaryBody">
+                    <tr>
+                        <td>Trống</td>
+                        <td th:text="${totalAvailableTables}">0</td>
+                        <td>Sẵn sàng nhận khách ngay</td>
+                    </tr>
+                    <tr>
+                        <td>Đang sử dụng</td>
+                        <td th:text="${totalActiveTables - totalAvailableTables}">0</td>
+                        <td>Đang có khách tại thời điểm chọn</td>
+                    </tr>
+                    <tr>
+                        <td>Sắp có khách</td>
+                        <td>0</td>
+                        <td>Có booking trong 2 giờ tới</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Danh sách bàn</span>
+                    <h3>Tất cả bàn trong hệ thống</h3>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Số bàn</th>
+                        <th>Tên bàn</th>
+                        <th>Mô tả ngắn</th>
+                        <th>Khu vực</th>
+                        <th>Trạng thái hiện tại</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="table : ${tables}">
+                        <td th:text="${table.tableNumber}">T1-01</td>
+                        <td th:text="${table.name}">Bàn Lotus 01</td>
+                        <td th:text="${table.tableType + ' - Sức chứa ' + table.capacity + ' người'}">Bàn tròn - Sức chứa 4 người</td>
+                        <td th:text="${table.locationDisplay}">Tầng 1 / VIP / Gần cửa sổ</td>
+                        <td th:text="${table.availableNow ? 'Đang trống' : 'Đang có khách'}">Đang trống</td>
+                        <td th:text="${table.active ? 'Đang hoạt động' : 'Ngưng hoạt động'}">Đang hoạt động</td>
+                        <td>
+                            <div class="inline-actions">
+                                <a class="btn btn-small btn-ghost" th:href="@{/admin/tables(editId=${table.id})}">Sửa</a>
+                                <form th:action="@{/admin/tables/delete}" method="post">
+                                    <input type="hidden" name="id" th:value="${table.id}"/>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Chi tiết theo giờ</span>
+                    <h3>Phân loại Trống / Đang sử dụng / Sắp có khách</h3>
+                </div>
+            </div>
+
+            <h4>Bàn trống</h4>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Số bàn</th>
+                        <th>Tên bàn</th>
+                        <th>Vị trí</th>
+                        <th>Sức chứa</th>
+                        <th>Kiểu bàn</th>
+                        <th>Thời gian trống</th>
+                    </tr>
+                    </thead>
+                    <tbody id="freeTablesBody">
+                    <tr>
+                        <td colspan="6" class="empty-cell">Đang tải dữ liệu...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Bàn đang sử dụng</h4>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Số bàn</th>
+                        <th>Tên bàn</th>
+                        <th>Vị trí</th>
+                        <th>Sức chứa</th>
+                        <th>Kiểu bàn</th>
+                        <th>Rảnh lại lúc</th>
+                    </tr>
+                    </thead>
+                    <tbody id="inUseTablesBody">
+                    <tr>
+                        <td colspan="6" class="empty-cell">Đang tải dữ liệu...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h4>Bàn sắp có khách</h4>
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Số bàn</th>
+                        <th>Tên bàn</th>
+                        <th>Vị trí</th>
+                        <th>Sức chứa</th>
+                        <th>Kiểu bàn</th>
+                        <th>Khách đến lúc</th>
+                    </tr>
+                    </thead>
+                    <tbody id="soonTablesBody">
+                    <tr>
+                        <td colspan="6" class="empty-cell">Đang tải dữ liệu...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    (function () {
+        const monitorDate = document.getElementById("monitorDate");
+        const monitorHour = document.getElementById("monitorHour");
+        const monitorMinute = document.getElementById("monitorMinute");
+        const monitorAmPm = document.getElementById("monitorAmPm");
+        const applyBtn = document.getElementById("applyMonitorBtn");
+        const backToNowBtn = document.getElementById("backToNowBtn");
+        const initialInput = document.getElementById("initialMonitorDateTime");
+
+        const checkTimeLabel = document.getElementById("checkTimeLabel");
+        const totalTablesCount = document.getElementById("totalTablesCount");
+        const freeCount = document.getElementById("freeCount");
+        const inUseCount = document.getElementById("inUseCount");
+        const soonCount = document.getElementById("soonCount");
+        const statusSummaryBody = document.getElementById("statusSummaryBody");
+
+        const freeTablesBody = document.getElementById("freeTablesBody");
+        const inUseTablesBody = document.getElementById("inUseTablesBody");
+        const soonTablesBody = document.getElementById("soonTablesBody");
+
+        if (!monitorDate || !monitorHour || !monitorMinute || !monitorAmPm || !applyBtn || !backToNowBtn) {
+            return;
+        }
+
+        let nowMode = true;
+
+        function pad(num) {
+            return String(num).padStart(2, "0");
+        }
+
+        function renderHourOptions() {
+            for (let h = 1; h <= 12; h += 1) {
+                const option = document.createElement("option");
+                option.value = String(h);
+                option.textContent = String(h);
+                monitorHour.appendChild(option);
+            }
+        }
+
+        function renderMinuteOptions() {
+            for (let m = 0; m <= 59; m += 1) {
+                const option = document.createElement("option");
+                option.value = pad(m);
+                option.textContent = pad(m);
+                monitorMinute.appendChild(option);
+            }
+        }
+
+        function setControlsFromDate(date) {
+            monitorDate.value = date.getFullYear() + "-" + pad(date.getMonth() + 1) + "-" + pad(date.getDate());
+
+            let hour = date.getHours();
+            const minute = pad(date.getMinutes());
+            const ampm = hour >= 12 ? "PM" : "AM";
+            hour = hour % 12;
+            if (hour === 0) {
+                hour = 12;
+            }
+
+            monitorHour.value = String(hour);
+            monitorMinute.value = minute;
+            monitorAmPm.value = ampm;
+        }
+
+        function getSelectedDate() {
+            if (!monitorDate.value) {
+                return null;
+            }
+
+            let hour = Number(monitorHour.value);
+            const minute = Number(monitorMinute.value);
+            const ampm = monitorAmPm.value;
+
+            if (ampm === "AM" && hour === 12) {
+                hour = 0;
+            } else if (ampm === "PM" && hour < 12) {
+                hour += 12;
+            }
+
+            const date = new Date(monitorDate.value + "T00:00:00");
+            date.setHours(hour, minute, 0, 0);
+            return date;
+        }
+
+        function toIsoLocal(date) {
+            return date.getFullYear()
+                + "-" + pad(date.getMonth() + 1)
+                + "-" + pad(date.getDate())
+                + "T" + pad(date.getHours())
+                + ":" + pad(date.getMinutes());
+        }
+
+        function formatDateTimeDisplay(value) {
+            if (!value) {
+                return "-";
+            }
+
+            const normalized = value.length === 16 ? value + ":00" : value;
+            const date = new Date(normalized);
+            if (Number.isNaN(date.getTime())) {
+                return value;
+            }
+
+            let hour = date.getHours();
+            const ampm = hour >= 12 ? "PM" : "AM";
+            hour = hour % 12;
+            if (hour === 0) {
+                hour = 12;
+            }
+
+            return pad(date.getDate()) + "/" + pad(date.getMonth() + 1) + "/" + date.getFullYear()
+                + " " + pad(hour) + ":" + pad(date.getMinutes()) + " " + ampm;
+        }
+
+        function locationText(item) {
+            const parts = [];
+            if (item.floor) {
+                parts.push(item.floor);
+            }
+            if (item.roomType) {
+                parts.push(item.roomType);
+            }
+            return parts.length > 0 ? parts.join(" / ") : "-";
+        }
+
+        function buildRows(items, timeLabelBuilder) {
+            if (!items || items.length === 0) {
+                return "<tr><td colspan=\"6\" class=\"empty-cell\">Không có dữ liệu.</td></tr>";
+            }
+
+            return items.map(function (item) {
+                const tableNumber = item.tableNumber || "-";
+                const tableName = item.tableName || "-";
+                const capacity = item.capacity != null ? item.capacity + " người" : "-";
+                const tableType = item.tableType || "-";
+                const timeLabel = timeLabelBuilder(item);
+
+                return "<tr>"
+                    + "<td>" + tableNumber + "</td>"
+                    + "<td>" + tableName + "</td>"
+                    + "<td>" + locationText(item) + "</td>"
+                    + "<td>" + capacity + "</td>"
+                    + "<td>" + tableType + "</td>"
+                    + "<td>" + timeLabel + "</td>"
+                    + "</tr>";
+            }).join("");
+        }
+
+        function updateStatusSummary(data) {
+            statusSummaryBody.innerHTML = ""
+                + "<tr><td>Trống</td><td>" + data.freeCount + "</td><td>Sẵn sàng nhận khách ngay</td></tr>"
+                + "<tr><td>Đang sử dụng</td><td>" + data.inUseCount + "</td><td>Có khách tại thời điểm đang xem</td></tr>"
+                + "<tr><td>Sắp có khách</td><td>" + data.soonCount + "</td><td>Có booking trong 2 giờ tới</td></tr>";
+        }
+
+        function renderStatus(data) {
+            totalTablesCount.textContent = data.totalTables;
+            freeCount.textContent = data.freeCount;
+            inUseCount.textContent = data.inUseCount;
+            soonCount.textContent = data.soonCount;
+            checkTimeLabel.textContent = formatDateTimeDisplay(data.checkTime);
+
+            updateStatusSummary(data);
+
+            freeTablesBody.innerHTML = buildRows(data.freeTables, function (item) {
+                return item.availableUntil ? "Rảnh đến " + formatDateTimeDisplay(item.availableUntil) : "Trống tự do";
+            });
+
+            inUseTablesBody.innerHTML = buildRows(data.inUseTables, function (item) {
+                return item.availableUntil ? formatDateTimeDisplay(item.availableUntil) : "-";
+            });
+
+            soonTablesBody.innerHTML = buildRows(data.soonTables, function (item) {
+                return item.availableUntil ? formatDateTimeDisplay(item.availableUntil) : "-";
+            });
+        }
+
+        function fetchStatus(date) {
+            const iso = toIsoLocal(date);
+            return fetch("/api/admin/tables/status?checkTime=" + encodeURIComponent(iso), {
+                headers: {
+                    Accept: "application/json"
+                }
+            })
+                .then(function (response) {
+                    if (!response.ok) {
+                        throw new Error("Không lấy được trạng thái bàn");
+                    }
+                    return response.json();
+                })
+                .then(function (data) {
+                    renderStatus(data);
+                })
+                .catch(function () {
+                    checkTimeLabel.textContent = "Lỗi tải dữ liệu";
+                });
+        }
+
+        function updateFromControls() {
+            const selectedDate = getSelectedDate();
+            if (!selectedDate) {
+                return;
+            }
+            nowMode = false;
+            fetchStatus(selectedDate);
+        }
+
+        function updateNow() {
+            nowMode = true;
+            const now = new Date();
+            setControlsFromDate(now);
+            fetchStatus(now);
+        }
+
+        renderHourOptions();
+        renderMinuteOptions();
+
+        const initialDate = (function () {
+            if (initialInput && initialInput.value) {
+                const parsed = new Date(initialInput.value + ":00");
+                if (!Number.isNaN(parsed.getTime())) {
+                    return parsed;
+                }
+            }
+            return new Date();
+        })();
+
+        setControlsFromDate(initialDate);
+
+        applyBtn.addEventListener("click", updateFromControls);
+        backToNowBtn.addEventListener("click", updateNow);
+        monitorDate.addEventListener("change", updateFromControls);
+        monitorHour.addEventListener("change", updateFromControls);
+        monitorMinute.addEventListener("change", updateFromControls);
+        monitorAmPm.addEventListener("change", updateFromControls);
+
+        fetchStatus(initialDate);
+        setInterval(function () {
+            if (nowMode) {
+                updateNow();
+            }
+        }, 30000);
+    })();
+</script>
+<script th:inline="javascript">
+    (function () {
+        const errorMessage = /*[[${errorMessage}]]*/ null;
+        const successMessage = /*[[${successMessage}]]*/ null;
+
+        if (errorMessage) {
+            Swal.fire({
+                icon: "error",
+                title: "Không thể xóa bàn",
+                text: errorMessage,
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true,
+                background: "#2f1114",
+                color: "#ffd7dc"
+            });
+            return;
+        }
+
+        if (successMessage) {
+            Swal.fire({
+                icon: "success",
+                title: successMessage,
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true
+            });
+        }
+    })();
+</script>
+</body>
+</html>

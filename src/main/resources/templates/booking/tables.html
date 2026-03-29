@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Chọn bàn | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body class="landing-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Hero Banner -->
+<header class="luxe-hero" style="min-height: 42vh; padding-top: 120px;">
+    <div class="luxe-hero-overlay"></div>
+    <div class="luxe-lines" aria-hidden="true"></div>
+    <div class="container" style="position: relative; z-index: 2; text-align: center; padding-bottom: 48px;">
+        <span class="hero-kicker">Bước 2 / 3</span>
+        <h1 style="margin: 16px auto 0; color: #f9e7cb; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 0 18px 35px rgba(0,0,0,0.35);">
+            Chọn Bàn Của Bạn
+        </h1>
+        <div class="hero-signature" style="font-size: clamp(1.3rem, 2.5vw, 1.8rem); margin-top: 10px;">Không gian sang trọng, phục vụ tận tâm</div>
+        <p class="hero-description" style="margin: 16px auto 0; text-align: center; color: rgba(242, 233, 221, 0.88);">
+            Danh sách bàn phù hợp cho
+            <strong style="color: #f9e7cb;" th:text="${guestCount}">4</strong> khách · 
+            <span th:text="${#temporals.format(bookingDateTime, 'dd/MM/yyyy HH:mm')}">20/03/2026 19:00</span>
+            <span> (khung <strong th:text="${#temporals.format(bookingDateTime, 'HH:mm') + ' – ' + #temporals.format(bookingEndTime, 'HH:mm')}"></strong>)</span>
+        </p>
+    </div>
+</header>
+
+<!-- Tables Grid -->
+<section class="section section-charcoal" style="background:#0e0a08;">
+    <div class="container">
+
+        <!-- Empty state -->
+        <div th:if="${#lists.isEmpty(tables)}" class="empty-state" style="text-align: center; padding: 60px 20px;">
+            <h3 style="font-family: 'Cormorant Garamond', serif; color: #d4af37;" th:if="${totalTables == 0}">Hiện không có loại bàn đúng sức chứa này.</h3>
+            <h3 style="font-family: 'Cormorant Garamond', serif; color: #d4af37;" th:if="${totalTables > 0}">Hết bàn cho khung giờ bạn đã chọn.</h3>
+            <p style="color: rgba(243,228,205,0.7); font-family: 'Manrope', sans-serif;" th:if="${totalTables == 0}">Hãy thử thay đổi số lượng khách để tìm loại bàn khác.</p>
+            <p style="color: rgba(243,228,205,0.7); font-family: 'Manrope', sans-serif;" th:if="${totalTables > 0}">Tất cả bàn loại này đã có người đặt trong khung thời gian gần đó.</p>
+            <a class="btn btn-gold" th:href="@{/booking/start}" style="margin-top: 20px; font-family: 'Manrope', sans-serif; font-weight: 700;">← Quay lại</a>
+        </div>
+
+        <!-- Space Grid — y hệt trang chủ -->
+        <div class="space-grid" th:if="${!#lists.isEmpty(tables)}">
+            <article class="space-tile" th:each="table : ${tables}">
+                <div class="space-media-wrap">
+                    <div class="space-media"
+                         th:style="'background-image: linear-gradient(180deg, rgba(10,7,6,0.08), rgba(10,7,6,0.62)), url(https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1400&q=80)'">
+                    </div>
+                </div>
+                <div class="space-info">
+                    <span class="space-location" th:text="${table.locationDisplay}">Tầng 1 / VIP</span>
+                    <h3 th:text="${table.name}">Bàn Lotus</h3>
+                    <p th:text="${table.summaryLine}">Fine Dining - Sang trọng - 4 người</p>
+                    <p style="color: rgba(243,228,205,0.65); font-family: 'Manrope', sans-serif; font-size: 0.9rem;" th:text="${table.description}"></p>
+                    <div class="space-meta-row">
+                        <span class="meta-chip" th:text="${table.capacity + ' khách'}">4 khách</span>
+                        <form th:action="@{/booking/preorder}" method="post" style="margin: 0;">
+                            <input type="hidden" name="tableId" th:value="${table.id}"/>
+                            <input type="hidden" name="guestCount" th:value="${guestCount}"/>
+                            <input type="hidden" name="bookingDateTime" th:value="${bookingDateTime}"/>
+                            <input type="hidden" name="durationHours" th:value="${durationHours}"/>
+                            <button class="btn btn-gold-outline btn-card-action" type="submit">Chọn bàn này</button>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Xử lý booking | Riviere Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">Booking operations</span>
+        <h1>Xử lý đơn đặt bàn</h1>
+        <p>Theo dõi lịch theo ngày, xác nhận đã thanh toán, hoàn tiền VNPAY và xử lý tình huống khách không đến.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="table-card">
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+            <form class="filter-bar" th:action="@{/admin/bookings}" method="get">
+                <label>Lọc theo ngày
+                    <input type="date" name="bookingDate" th:value="${selectedDate}"/>
+                </label>
+                <button class="btn btn-primary" type="submit">Xem lịch</button>
+                <a class="btn btn-ghost" th:href="@{/admin/bookings}">Xóa lọc</a>
+            </form>
+
+            <div class="table-responsive">
+                <table class="admin-table bookings-table">
+                    <thead>
+                    <tr>
+                        <th>Khách hàng</th>
+                        <th>Bàn</th>
+                        <th>Ngày giờ</th>
+                        <th>Số khách</th>
+                        <th>Giá trị đơn</th>
+                        <th>Thanh toán</th>
+                        <th>Trạng thái booking</th>
+                        <th>Thao tác</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking : ${bookings}">
+                        <td>
+                            <strong th:text="${booking.customer.fullName}">Nguyễn Văn A</strong>
+                            <div class="muted-mini" th:text="${booking.customer.phone}">0988...</div>
+                        </td>
+                        <td>
+                            <strong th:text="${booking.diningTable.name}">Bàn Lotus 01</strong>
+                            <div class="muted-mini" th:text="${booking.diningTable.summaryLine}">Bàn tròn - Ghế tựa</div>
+                        </td>
+                        <td th:text="${#temporals.format(booking.bookingDateTime, 'dd/MM/yyyy HH:mm')}">20/03/2026 19:00</td>
+                        <td th:text="${booking.guestCount}">4</td>
+                        <td>
+                            <strong th:text="${booking.hasPreOrder() ? booking.totalAmountDisplay : 'Chưa chọn món'}">150.000 đ</strong>
+                            <div class="muted-mini" th:text="${booking.paymentMethod != null ? booking.paymentMethod.displayName : 'Thanh toán tại nhà hàng'}">VNPAY</div>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID'} ? ' payment-paid' :
+                                                   (${booking.paymentStatus != null and booking.paymentStatus.name() == 'PENDING'} ? ' payment-pending' :
+                                                   (${booking.paymentStatus != null and booking.paymentStatus.name() == 'FAILED'} ? ' payment-failed' :
+                                                   (${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUND_PENDING'} ? ' payment-refund-pending' :
+                                                   (${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUNDED'} ? ' payment-refunded' : ' payment-unpaid'))))"
+                                  th:text="${booking.paymentStatus != null ? booking.paymentStatus.displayName : 'Chưa thanh toán'}">Chưa thanh toán</span>
+                            <div class="muted-mini" th:if="${booking.latestPaymentTxnRef != null and !#strings.isEmpty(booking.latestPaymentTxnRef)}">
+                                Mã tham chiếu: <span th:text="${booking.latestPaymentTxnRef}">BK123</span>
+                            </div>
+                            <div class="muted-mini" th:if="${booking.paidAt != null}">
+                                Cập nhật lúc <span th:text="${#temporals.format(booking.paidAt, 'dd/MM/yyyy HH:mm')}">20/03/2026 19:30</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge"
+                                  th:classappend="${booking.status.name() == 'CONFIRMED'} ? ' status-confirmed' :
+                                                   (${booking.status.name() == 'CANCELLED'} ? ' status-cancelled' :
+                                                   (${booking.status.name() == 'NO_SHOW'} ? ' status-no-show' : ''))"
+                                  th:text="${booking.status.displayName}">Đã xác nhận</span>
+                        </td>
+                        <td>
+                            <div class="inline-actions inline-actions-stack">
+                                <form th:if="${booking.status.name() == 'CONFIRMED' and (booking.paymentStatus == null || (booking.paymentStatus.name() != 'PAID' and booking.paymentStatus.name() != 'REFUND_PENDING' and booking.paymentStatus.name() != 'REFUNDED'))}"
+                                      th:action="@{/admin/bookings/confirm-paid}" method="post">
+                                    <input type="hidden" name="bookingId" th:value="${booking.id}"/>
+                                    <button class="btn btn-small btn-primary" type="submit">Xác nhận đã thanh toán</button>
+                                </form>
+
+                                <form th:if="${vnpayConfigured and booking.paymentMethod != null and booking.paymentMethod.name() == 'VNPAY' and booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID'}"
+                                      th:action="@{/admin/bookings/refund}" method="post">
+                                    <input type="hidden" name="bookingId" th:value="${booking.id}"/>
+                                    <button class="btn btn-small btn-outline" type="submit">Hoàn tiền VNPAY</button>
+                                </form>
+
+                                <form th:if="${booking.status.name() == 'CONFIRMED' and (booking.paymentStatus == null || booking.paymentStatus.name() != 'PAID')}" th:action="@{/admin/bookings/cancel}" method="post">
+                                    <input type="hidden" name="bookingId" th:value="${booking.id}"/>
+                                    <button class="btn btn-small btn-danger" type="submit">Hủy bàn</button>
+                                </form>
+
+                                <form th:if="${booking.status.name() == 'CONFIRMED' and (booking.paymentStatus == null || booking.paymentStatus.name() != 'PAID')}" th:action="@{/admin/bookings/no-show}" method="post">
+                                    <input type="hidden" name="bookingId" th:value="${booking.id}"/>
+                                    <button class="btn btn-small btn-ghost" type="submit">Không đến</button>
+                                </form>
+                                <div class="muted-mini" th:if="${booking.status.name() != 'CONFIRMED' or (booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID')}">
+                                    Không còn thao tác cho đơn này.
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(bookings)}">
+                        <td colspan="8" class="empty-cell">Không có booking nào trong mốc thời gian này.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

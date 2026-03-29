@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Kết quả thanh toán VNPAY | Riviere Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header">
+    <div class="container">
+        <span class="section-tag">VNPAY callback</span>
+        <h1>Xác nhận đơn hàng & thanh toán</h1>
+        <p>Kết quả dưới đây được đồng bộ từ cổng thanh toán VNPAY và dùng để xác nhận booking của bạn tại nhà hàng.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container payment-result-wrap">
+        <article class="result-card"
+                 th:classappend="${result.success} ? ' result-success' : ' result-failed'">
+            <div class="result-hero">
+                <div class="result-icon" th:text="${result.success} ? '✓' : '!'}">!</div>
+                <div>
+                    <span class="section-tag" th:text="${result.success} ? 'Đơn hàng đã xác nhận' : 'Chưa hoàn tất thanh toán'}">Đơn hàng đã xác nhận</span>
+                    <h2 th:text="${result.success} ? 'Thanh toán thành công, booking đã được giữ chỗ' : 'Thanh toán chưa thành công'}">Thanh toán thành công</h2>
+                    <p th:text="${result.message}">Mô tả kết quả giao dịch.</p>
+                </div>
+            </div>
+
+            <div class="result-grid" th:if="${result.booking != null}">
+                <div>
+                    <span class="muted-label">Mã booking</span>
+                    <strong th:text="${'#' + result.booking.id}">#12</strong>
+                </div>
+                <div>
+                    <span class="muted-label">Bàn đã giữ</span>
+                    <strong th:text="${result.booking.diningTable.name}">Bàn Lotus 01</strong>
+                </div>
+                <div>
+                    <span class="muted-label">Thời gian dùng bữa</span>
+                    <strong th:text="${#temporals.format(result.booking.bookingDateTime, 'dd/MM/yyyy HH:mm')}">20/03/2026 19:00</strong>
+                </div>
+                <div>
+                    <span class="muted-label">Số khách</span>
+                    <strong th:text="${result.booking.guestCount + ' người'}">4 người</strong>
+                </div>
+                <div>
+                    <span class="muted-label">Tổng tiền</span>
+                    <strong th:text="${result.booking.totalAmountDisplay}">580.000 đ</strong>
+                </div>
+                <div>
+                    <span class="muted-label">Trạng thái thanh toán</span>
+                    <strong th:text="${result.booking.paymentStatus != null ? result.booking.paymentStatus.displayName : 'Đang xử lý'}">Đã thanh toán</strong>
+                </div>
+                <div th:if="${result.paymentTransaction != null and result.paymentTransaction.txnRef != null}">
+                    <span class="muted-label">Mã tham chiếu merchant</span>
+                    <strong th:text="${result.paymentTransaction.txnRef}">BKxxxx</strong>
+                </div>
+                <div th:if="${result.paymentTransaction != null and result.paymentTransaction.transactionNo != null and !#strings.isEmpty(result.paymentTransaction.transactionNo)}">
+                    <span class="muted-label">Mã giao dịch VNPAY</span>
+                    <strong th:text="${result.paymentTransaction.transactionNo}">14124124</strong>
+                </div>
+                <div th:if="${result.paymentTransaction != null and result.paymentTransaction.bankCode != null and !#strings.isEmpty(result.paymentTransaction.bankCode)}">
+                    <span class="muted-label">Ngân hàng</span>
+                    <strong th:text="${result.paymentTransaction.bankCode}">NCB</strong>
+                </div>
+                <div th:if="${result.paymentTransaction != null and result.paymentTransaction.responseCode != null and !#strings.isEmpty(result.paymentTransaction.responseCode)}">
+                    <span class="muted-label">Mã phản hồi</span>
+                    <strong th:text="${result.paymentTransaction.responseCode}">00</strong>
+                </div>
+            </div>
+
+            <div class="confirmation-panel" th:if="${result.booking != null}">
+                <h3>Nha hang da ghi nhan</h3>
+                <ul class="confirmation-list">
+                    <li>Booking của bạn đã được tạo trên hệ thống quản trị.</li>
+                    <li th:if="${result.success}">Thanh toán đã được đánh dấu thành công và sẵn sàng để bếp chuẩn bị món đặt trước.</li>
+                    <li th:if="${!result.success}">Bạn có thể quay lại danh sách booking để thử thanh toán lại hoặc chọn hình thức thanh toán tại nhà hàng.</li>
+                </ul>
+            </div>
+
+            <div class="action-row action-row-center">
+                <a class="btn btn-primary" th:href="@{/booking/my}">Về booking của tôi</a>
+                <a class="btn btn-ghost" th:href="@{/booking/start}">Tạo booking mới</a>
+            </div>
+        </article>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

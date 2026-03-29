@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xác nhận đặt bàn | Rivière Restaurant</title>
+    <!-- Import Google Fonts chuẩn Tiếng Việt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=Mulish:ital,wght@0,300;0,400;0,600;1,300&display=swap"
+        rel="stylesheet">
+
+    <!-- CSS fallback cho các Mail Client không nhận inline Google Fonts -->
+    <style>
+        body,
+        table,
+        td,
+        p,
+        a,
+        li,
+        blockquote {
+            -webkit-text-size-adjust: 100%;
+            -ms-text-size-adjust: 100%;
+        }
+
+        .font-lora {
+            font-family: 'Lora', Georgia, serif !important;
+        }
+
+        .font-mulish {
+            font-family: 'Mulish', Arial, sans-serif !important;
+        }
+    </style>
+</head>
+
+<body class="font-mulish"
+    style="margin:0;padding:0;background:#0d0d0d;font-family:'Mulish', Arial, sans-serif;color:#e8d9b5;line-height:1.6;">
+
+    <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
+        style="background:#0d0d0d;padding:28px 12px;">
+        <tr>
+            <td align="center">
+                <!--  Outer card  -->
+                <table role="presentation" width="620" cellspacing="0" cellpadding="0"
+                    style="max-width:620px;background:#141414;border:1px solid #b8952a;border-radius:16px;overflow:hidden;">
+
+                    <!-- ── HEADER ── -->
+                    <tr>
+                        <td
+                            style="padding:30px 36px 24px;background:linear-gradient(160deg,#1a1200 0%,#0d0d0d 100%);border-bottom:1px solid #b8952a;">
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                                <tr>
+                                    <td style="vertical-align:middle;width:52px;">
+                                        <div class="font-lora" style="width:42px;height:42px;border-radius:10px;background:#b8952a;color:#0d0d0d;
+                                                display:inline-block;text-align:center;line-height:42px;
+                                                font-family:'Lora', Georgia, serif;font-size:24px;font-weight:600;">R
+                                        </div>
+                                    </td>
+                                    <td style="vertical-align:middle;padding-left:12px;">
+                                        <div class="font-lora"
+                                            style="margin:0;font-family:'Lora', Georgia, serif;font-size:24px;font-weight:600;color:#e2c96e;letter-spacing:1px;text-transform:uppercase;">
+                                            Rivière Restaurant</div>
+                                        <div class="font-lora"
+                                            style="margin:4px 0 0;font-family:'Lora', Georgia, serif;font-style:italic;font-size:13px;color:#927932;letter-spacing:0.5px;">
+                                            Hành trình ẩm thực tinh hoa</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- ── HERO BANNER ── -->
+                    <tr>
+                        <td style="padding:28px 36px 24px;background:#0f0e00;border-bottom:1px solid #2c2409;">
+                            <div style="border-left:3px solid #b8952a;padding-left:14px;">
+                                <div class="font-mulish"
+                                    style="font-family:'Mulish', Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#927932;margin-bottom:8px;">
+                                    Xác nhận đặt bàn thành công</div>
+                                <div class="font-lora"
+                                    style="font-family:'Lora', Georgia, serif;font-size:28px;font-weight:600;color:#e2c96e;line-height:1.35;">
+                                    Cảm ơn Quý khách <br />đã tin tưởng Rivière</div>
+                            </div>
+                        </td>
+                    </tr>
+
+                    <!-- ── BODY ── -->
+                    <tr>
+                        <td style="padding:32px 36px;">
+
+                            <!-- Greeting -->
+                            <p class="font-mulish"
+                                style="margin:0 0 20px;font-family:'Mulish', Arial, sans-serif;font-weight:400;font-size:15px;line-height:1.7;color:#d4c49e;">
+                                Kính chào <strong class="font-lora"
+                                    th:text="${booking.customer?.fullName ?: 'Quý khách'}"
+                                    style="font-family:'Lora', Georgia, serif;font-weight:600;font-size:17px;color:#e2c96e;">Quý
+                                    khách</strong>,
+                            </p>
+                            <p class="font-mulish"
+                                style="margin:0 0 28px;font-family:'Mulish', Arial, sans-serif;font-weight:300;font-size:15px;line-height:1.7;color:#b0a07d;">
+                                Đơn đặt bàn của bạn đã được ghi nhận và xác nhận thành công.
+                                Chúng tôi rất mong được đón tiếp và phục vụ Quý khách.
+                            </p>
+
+                            <!-- Booking code badge -->
+                            <div
+                                style="margin-bottom:28px;padding:18px 20px;background:#1a1500;border:1px dashed #b8952a;border-radius:10px;text-align:center;">
+                                <div class="font-mulish"
+                                    style="font-family:'Mulish', Arial, sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:#927932;margin-bottom:8px;">
+                                    Mã đặt bàn</div>
+                                <div class="font-lora" th:text="'#' + ${booking.id}"
+                                    style="font-family:'Lora', Georgia, serif;font-size:36px;letter-spacing:2px;font-weight:600;color:#e2c96e;">
+                                    #0000
+                                </div>
+                            </div>
+
+                            <!-- ── Thông tin khách hàng ── -->
+                            <div class="font-lora"
+                                style="font-family:'Lora', Georgia, serif;font-size:16px;font-weight:600;text-transform:uppercase;color:#927932;margin-bottom:12px;border-bottom:1px solid #2c2409;padding-bottom:8px;">
+                                Thông tin khách hàng
+                            </div>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="font-mulish"
+                                style="margin-bottom:28px;font-family:'Mulish', Arial, sans-serif;font-size:14px;font-weight:400;color:#c9b98a;">
+                                <tr>
+                                    <td style="padding:8px 0;color:#7a6b44;width:160px;">Họ &amp; tên</td>
+                                    <td th:text="${booking.customer?.fullName ?: '—'}"
+                                        style="padding:8px 0;color:#e2c96e;font-weight:600;">Nguyễn Văn A</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;color:#7a6b44;">Số điện thoại</td>
+                                    <td th:text="${booking.customer?.phone ?: '—'}"
+                                        style="padding:8px 0;color:#e2c96e;font-weight:600;">0901 234 567</td>
+                                </tr>
+                            </table>
+
+                            <!-- ── Thông tin bàn ── -->
+                            <div class="font-lora"
+                                style="font-family:'Lora', Georgia, serif;font-size:16px;font-weight:600;text-transform:uppercase;color:#927932;margin-bottom:12px;border-bottom:1px solid #2c2409;padding-bottom:8px;">
+                                Thông tin chi tiết
+                            </div>
+                            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" class="font-mulish"
+                                style="margin-bottom:28px;font-family:'Mulish', Arial, sans-serif;font-size:14px;font-weight:400;color:#c9b98a;">
+                                <tr>
+                                    <td style="padding:8px 0;color:#7a6b44;width:160px;">Bàn</td>
+                                    <!-- Use a conditional block to safely render table name + location if available, else just table name -->
+                                    <td style="padding:8px 0;color:#e2c96e;font-weight:600;">
+                                        <th:block th:if="${booking.diningTable != null}">
+                                            <span th:text="${booking.diningTable.name}">Bàn VIP 01</span>
+                                            
+                                            <!-- Check and display floor/roomType safely -->
+                                            <th:block th:if="${!#strings.isEmpty(booking.diningTable.floor) or !#strings.isEmpty(booking.diningTable.roomType)}">
+                                                (
+                                                <span th:if="${!#strings.isEmpty(booking.diningTable.floor)}" th:text="${booking.diningTable.floor}">Tầng 1</span>
+                                                <span th:if="${!#strings.isEmpty(booking.diningTable.floor) and !#strings.isEmpty(booking.diningTable.roomType)}"> - </span>
+                                                <span th:if="${!#strings.isEmpty(booking.diningTable.roomType)}" th:text="${booking.diningTable.roomType}">Phòng VIP</span>
+                                                )
+                                            </th:block>
+                                        </th:block>
+                                        <th:block th:unless="${booking.diningTable != null}">
+                                            —
+                                        </th:block>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;color:#7a6b44;">Ngày &amp; giờ đến</td>
+                                    <td style="padding:8px 0;color:#e2c96e;font-weight:600;">
+                                        <span
+                                            th:text="${#temporals.format(booking.bookingDateTime,'dd/MM/yyyy HH:mm')}">01/01/2025
+                                            19:00</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding:8px 0;color:#7a6b44;">Số lượng khách</td>
+                                    <td th:text="${booking.guestCount} + ' khách'"
+                                        style="padding:8px 0;color:#e2c96e;font-weight:600;">
+                                        4 khách</td>
+                                </tr>
+                                <tr th:if="${booking.notes != null and !#strings.isEmpty(booking.notes)}">
+                                    <td style="padding:8px 0;color:#7a6b44;">Ghi chú</td>
+                                    <td class="font-lora" th:text="${booking.notes}"
+                                        style="padding:8px 0;color:#e2c96e;font-family:'Lora', Georgia, serif;font-style:italic;">
+                                        —</td>
+                                </tr>
+                            </table>
+
+                            <!-- ── Danh sách món (nếu có) ── -->
+                            <th:block th:if="${booking.items != null and !booking.items.empty}">
+                                <div class="font-lora"
+                                    style="font-family:'Lora', Georgia, serif;font-size:16px;font-weight:600;text-transform:uppercase;color:#927932;margin-bottom:12px;border-bottom:1px solid #2c2409;padding-bottom:8px;">
+                                    Món đặt trước
+                                </div>
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
+                                    class="font-mulish"
+                                    style="margin-bottom:28px;font-family:'Mulish', Arial, sans-serif;font-size:14px;font-weight:400;">
+                                    <!-- Header row -->
+                                    <tr style="border-bottom:1px solid #2c2409;">
+                                        <td
+                                            style="padding:8px 0;color:#7a6b44;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
+                                            Món ăn</td>
+                                        <td
+                                            style="padding:8px 0;color:#7a6b44;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-align:center;width:60px;">
+                                            SL</td>
+                                        <td
+                                            style="padding:8px 0;color:#7a6b44;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;text-align:right;width:110px;">
+                                            Thành tiền</td>
+                                    </tr>
+                                    <!-- Item rows -->
+                                    <tr th:each="item : ${booking.items}" style="border-bottom:1px solid #1e1a0e;">
+                                        <td th:text="${item.menuItem?.name ?: '—'}"
+                                            style="padding:10px 0;color:#c9b98a;">Tên món</td>
+                                        <td th:text="${item.quantity}"
+                                            style="padding:10px 0;color:#c9b98a;text-align:center;">1</td>
+                                        <td th:text="${item.lineTotalDisplay}"
+                                            style="padding:10px 0;color:#e2c96e;text-align:right;font-weight:600;">0 ₫
+                                        </td>
+                                    </tr>
+                                </table>
+                            </th:block>
+
+                            <!-- ── Tổng tiền & Thanh toán ── -->
+                            <div
+                                style="padding:20px 24px;background:#1a1500;border:1px solid #2c2409;border-radius:12px;margin-bottom:30px;">
+                                <table role="presentation" width="100%" cellspacing="0" cellpadding="0"
+                                    class="font-mulish" style="font-family:'Mulish', Arial, sans-serif;">
+                                    <tr>
+                                        <td style="font-size:14px;color:#7a6b44;padding-bottom:12px;">Tổng tiền</td>
+                                        <td class="font-lora" th:text="${booking.totalAmountDisplay}"
+                                            style="font-family:'Lora', Georgia, serif;font-size:24px;font-weight:600;letter-spacing:1px;color:#e2c96e;text-align:right;padding-bottom:12px;">
+                                            0 ₫</td>
+                                    </tr>
+                                    <tr>
+                                        <td
+                                            style="font-size:14px;color:#7a6b44;border-top:1px solid #2c2409;padding-top:14px;">
+                                            Trạng thái thanh toán</td>
+                                        <td style="text-align:right;border-top:1px solid #2c2409;padding-top:14px;">
+                                            <span class="font-mulish" th:text="${paymentLabel}"
+                                                style="display:inline-block;padding:5px 14px;background:#0b1f0b;color:#4caf50;border:1px solid #2e7d32;border-radius:20px;font-family:'Mulish', Arial, sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;">
+                                                Đã thanh toán
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Note -->
+                            <p class="font-mulish"
+                                style="margin:0;font-family:'Mulish', Arial, sans-serif;font-weight:300;font-size:14px;line-height:1.7;color:#7a6b44;">
+                                Nếu cần hỗ trợ hoặc thay đổi, vui lòng liên hệ nhà hàng trước giờ đến ít nhất
+                                <strong style="color:#c9b98a;font-weight:400;">2 tiếng</strong>.<br />
+                                Chúng tôi luôn ở đây để đảm bảo trải nghiệm hoàn hảo cho Quý khách.
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- ── FOOTER ── -->
+                    <tr>
+                        <td style="padding:24px 36px 28px;background:#0a0a0a;border-top:1px solid #2c2409;">
+                            <p class="font-mulish"
+                                style="margin:0 0 8px;font-family:'Mulish', Arial, sans-serif;font-weight:300;font-size:12px;color:#4d4228;line-height:1.8;">
+                                © 2025 Rivière Restaurant · Mọi thắc mắc xin liên hệ qua hotline trên website.
+                            </p>
+                            <p class="font-mulish"
+                                style="margin:0;font-family:'Mulish', Arial, sans-serif;font-weight:300;font-size:11px;color:#3a3018;">
+                                Đây là email tự động – vui lòng không phản hồi trực tiếp.
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

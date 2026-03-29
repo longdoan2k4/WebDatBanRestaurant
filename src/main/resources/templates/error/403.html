@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>403 | Khong du quyen truy cap</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">403</span>
+        <h1>Ban khong du quyen truy cap</h1>
+        <p>Tai khoan hien tai khong du quyen de mo trang hoac tai nguyen nay.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="table-card" style="max-width: 760px; margin: 0 auto; text-align: center;">
+            <h3>Truy cap bi tu choi</h3>
+            <p class="muted">Neu ban nghi day la nham lan, hay lien he quan tri he thong de duoc cap quyen phu hop.</p>
+            <div class="action-row" style="justify-content: center; margin-top: 18px;">
+                <a class="btn btn-primary" th:href="@{/}">Ve trang chu</a>
+                <a class="btn btn-ghost" th:href="@{/admin}">Ve trang quan ly</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

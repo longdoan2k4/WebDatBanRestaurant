@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Dashboard | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">Admin dashboard</span>
+        <h1>Quản lý hệ thống nhà hàng</h1>
+        <p>Theo dõi khách hàng, bàn ăn, booking và số món đặt trước theo thời gian thực.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="metric-grid">
+            <article class="metric-card">
+                <span>Khách hàng</span>
+                <strong th:text="${customerCount}">0</strong>
+                <p>Tài khoản có quyền khách hàng trong hệ thống.</p>
+            </article>
+            <article class="metric-card">
+                <span>Bàn ăn</span>
+                <strong th:text="${tableCount}">0</strong>
+                <p>Tổng số bàn đang được quản lý.</p>
+            </article>
+            <article class="metric-card">
+                <span>Booking</span>
+                <strong th:text="${bookingCount}">0</strong>
+                <p>Số lượt đặt bàn đã ghi nhận.</p>
+            </article>
+            <article class="metric-card">
+                <span>Món đặt trước</span>
+                <strong th:text="${preOrderedItems}">0</strong>
+                <p>Tổng số suất món đã được pre-order.</p>
+            </article>
+        </div>
+
+        <div class="admin-shortcuts">
+            <a class="shortcut-card" th:href="@{/admin/tables}">
+                <h3>Quản lý bàn ăn</h3>
+                <p>Thêm, chỉnh sửa, xóa bàn và cập nhật sức chứa.</p>
+            </a>
+            <a class="shortcut-card" th:href="@{/admin/menu}">
+                <h3>Quản lý menu</h3>
+                <p>Thêm món, cập nhật giá, hình ảnh và mô tả.</p>
+            </a>
+            <a class="shortcut-card" sec:authorize="hasAnyRole('ADMIN','MENU_MANAGER')" th:href="@{/admin/kitchen-orders}">
+                <h3>Theo dõi order bếp</h3>
+                <p>Xem các món đã gọi theo từng bàn đang phục vụ.</p>
+            </a>
+            <a class="shortcut-card" sec:authorize="hasRole('ADMIN')" th:href="@{/admin/users}">
+                <h3>Quản lý người dùng</h3>
+                <p>Xem tài khoản và nâng cấp quyền truy cập.</p>
+            </a>
+            <a class="shortcut-card" sec:authorize="hasAnyRole('ADMIN','TABLE_MANAGER')" th:href="@{/admin/bookings}">
+                <h3>Xử lý booking</h3>
+                <p>Hủy bàn nếu khách không đến và theo dõi theo ngày.</p>
+            </a>
+            <a class="shortcut-card" th:href="@{/admin/revenue}">
+                <h3>Doanh thu</h3>
+                <p>Theo dõi doanh thu theo ngày, tháng và năm.</p>
+            </a>
+            
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Lịch gần nhất</span>
+                    <h3>Đã xác nhận</h3>
+                </div>
+                <a class="text-link" sec:authorize="hasAnyRole('ADMIN','TABLE_MANAGER')" th:href="@{/admin/bookings}">Xem tất cả</a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Khách</th>
+                        <th>Bàn</th>
+                        <th>Ngày giờ</th>
+                        <th>Số khách</th>
+                        <th>Trạng thái</th>
+                        <th>Pre-order</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="booking : ${upcomingBookings}">
+                        <td th:text="${booking.customer.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${booking.diningTable.name}">Bàn Lotus 01</td>
+                        <td th:text="${#temporals.format(booking.bookingDateTime, 'dd/MM/yyyy HH:mm')}">20/03/2026 19:00</td>
+                        <td th:text="${booking.guestCount}">4</td>
+                        <td th:text="${booking.status.displayName}">Đã xác nhận</td>
+                        <td th:text="${booking.hasPreOrder() ? booking.totalAmountDisplay : 'Chưa chọn món'}">150.000 ₫</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

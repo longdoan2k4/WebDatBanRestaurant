@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý người dùng | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">User management</span>
+        <h1>Quản lý tài khoản</h1>
+        <p>Xem chi tiết người dùng và nâng cấp quyền truy cập cho nhân sự vận hành.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="table-card">
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Danh sách tài khoản</span>
+                    <h3>Tài khoản toàn hệ thống</h3>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Họ tên</th>
+                        <th>Số điện thoại</th>
+                        <th>Quyền hiện tại</th>
+                        <th>Nâng quyền nhanh</th>
+                        <th>Xóa tài khoản</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="user : ${users}">
+                        <td th:text="${user.fullName}">Nguyễn Văn A</td>
+                        <td th:text="${user.phone}">0988xxxxxx</td>
+                        <td th:text="${user.roleSummary}">Khách hàng</td>
+                        <td>
+                            <div class="inline-actions wrap">
+                                <form th:each="role : ${roles}" th:action="@{/admin/users/grant}" method="post">
+                                    <input type="hidden" name="userId" th:value="${user.id}"/>
+                                    <input type="hidden" name="roleName" th:value="${role}"/>
+                                    <button type="submit"
+                                            class="btn btn-small"
+                                            th:classappend="${user.roles.contains(role)} ? ' btn-primary' : ' btn-ghost'"
+                                            th:text="${role.displayName}">Admin</button>
+                                </form>
+                            </div>
+                        </td>
+                        <td>
+                            <form th:action="@{/admin/users/delete}" method="post"
+                                  onsubmit="return confirm('Bạn chắc chắn muốn xóa tài khoản này?');">
+                                <input type="hidden" name="userId" th:value="${user.id}"/>
+                                <button type="submit" class="btn btn-small btn-danger">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Hồ sơ khách hàng | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+</head>
+<body class="landing-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Luxe Hero Banner -->
+<header class="luxe-hero" style="min-height: 38vh; padding-top: 120px;">
+    <div class="luxe-hero-overlay"></div>
+    <div class="luxe-lines" aria-hidden="true"></div>
+    <div class="container" style="position: relative; z-index: 2; text-align: center; padding-bottom: 48px;">
+        <span class="hero-kicker">Khách hàng</span>
+        <h1 style="margin: 16px auto 0; color: #f9e7cb; font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 0 18px 35px rgba(0,0,0,0.35);">
+            Hồ Sơ Của Bạn
+        </h1>
+        <div class="hero-signature" style="font-size: clamp(1.2rem, 2.5vw, 1.7rem); margin-top: 10px;"
+             th:text="${profile.fullName}">Khách hàng Rivière</div>
+    </div>
+</header>
+
+<!-- Profile Content -->
+<section class="section section-charcoal" style="background: #0e0a08;">
+    <div class="container" style="max-width: 920px; display: flex; gap: 36px; flex-wrap: wrap; align-items: flex-start;">
+
+        <!-- Left Side Panel -->
+        <aside class="signature-panel" style="width: 100%; max-width: 260px; flex-shrink: 0; text-align: center;">
+            <div style="width: 72px; height: 72px; border-radius: 50%; background: linear-gradient(135deg, #d4af37, #aa7c11); display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; font-family:'Cormorant Garamond',serif; font-size: 2rem; color: #1a140b; font-weight: 700;"
+                 th:text="${profile.fullName != null ? #strings.substring(profile.fullName, 0, 1).toUpperCase() : 'R'}">R</div>
+            <h3 style="color: #f9e7cb; font-size: 1.3rem; margin-bottom: 4px;" th:text="${profile.fullName}">Google User</h3>
+            <p style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.5); font-size: 0.88rem; margin: 0 0 20px;">Khách hàng Rivière Restaurant</p>
+            <div class="inline-tags" style="justify-content: center;">
+                <span class="pill">Fine Dining</span>
+                <span class="pill">Luxury</span>
+            </div>
+            <a class="btn btn-gold" th:href="@{/booking/my}" style="margin-top: 20px; display: block; font-family:'Manrope',sans-serif; font-weight:700; font-size: 0.88rem; text-transform: uppercase; letter-spacing: 1px; padding: 10px;">Lịch sử đặt bàn</a>
+        </aside>
+
+        <!-- Right Main Content -->
+        <div style="flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 24px;">
+
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+            <div class="alert info"    th:if="${infoMessage}"    th:text="${infoMessage}"></div>
+            <div class="alert info">Khi thay đổi thông tin, hệ thống sẽ gửi OTP về email hiện tại để xác nhận.</div>
+
+            <!-- Đổi Voucher (Loyalty Program) -->
+            <div class="signature-panel" style="position: relative; overflow: hidden;">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Loyalty Program</span>
+                <h3 style="color: #d4af37; margin-bottom: 20px; font-size: 1.3rem;">Đổi Điểm Nhận Ưu Đãi</h3>
+
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px; background: rgba(0,0,0,0.3); padding: 16px; border-radius: 8px; border: 1px solid rgba(212,175,55,0.2);">
+                    <div>
+                        <p style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem; margin: 0 0 4px;">Điểm hiện tại của bạn</p>
+                        <strong style="color: #f9e7cb; font-size: 2rem; display: flex; align-items: center; gap: 8px;">
+                            <span th:text="${currentUser.loyaltyPoints}">0</span>
+                            <span style="font-size: 1rem; color: #d4af37; font-weight: 500;">điểm</span>
+                        </strong>
+                    </div>
+                    
+                    <button type="button" onclick="redeemVoucher()" class="btn btn-gold" style="font-family:'Manrope',sans-serif; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding: 12px 24px;" th:disabled="${currentUser == null or currentUser.loyaltyPoints < 100}" th:classappend="${currentUser == null or currentUser.loyaltyPoints < 100} ? 'opacity-50 cursor-not-allowed' : ''">
+                        Đổi Voucher 50K (Cần 100 điểm)
+                    </button>
+                </div>
+
+                <div id="voucherResult" style="margin-top: 16px; display: none; padding: 12px; border-radius: 6px; font-family:'Manrope',sans-serif; font-size: 0.9rem;"></div>
+            </div>
+
+            <div class="signature-panel">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Voucher của tôi</span>
+                <h3 style="color: #d4af37; margin-bottom: 20px; font-size: 1.3rem;">Danh sách Voucher chưa sử dụng</h3>
+                <div th:if="${#lists.isEmpty(myVouchers)}"
+                     style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.65); font-size: 0.92rem;">
+                    Bạn chưa có voucher khả dụng.
+                </div>
+                <div th:if="${!#lists.isEmpty(myVouchers)}"
+                     style="display:grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px;">
+                    <div th:each="voucher : ${myVouchers}"
+                         style="background: rgba(0,0,0,0.28); border: 1px solid rgba(212,175,55,0.24); border-radius: 10px; padding: 12px;">
+                        <div style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.72); font-size: 0.8rem; margin-bottom: 6px;">Mã voucher</div>
+                        <div th:text="${voucher.code}" style="font-family: monospace; font-size: 1rem; font-weight: 700; color: #f9e7cb; user-select: all;">RIVIERE-50K-XXXX</div>
+                        <div style="margin-top: 8px; color: #d4af37; font-family:'Manrope',sans-serif; font-size: 0.88rem;">Giảm 50.000đ</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Thông tin tài khoản -->
+            <div class="signature-panel">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Thông tin cá nhân</span>
+                <h3 style="color: #d4af37; margin-bottom: 20px; font-size: 1.3rem;">Cập nhật thông tin</h3>
+
+                <form class="profile-form" th:action="@{/profile}" method="post" th:object="${profile}" style="margin: 0;">
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Họ và tên
+                        <input type="text" th:field="*{fullName}" placeholder="Nhập họ và tên"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
+
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Email
+                        <input type="email" th:field="*{email}" placeholder="Nhập email"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Số điện thoại
+                        <input type="text" th:field="*{phone}" placeholder="Nhập số điện thoại"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+
+                    <button type="submit" class="btn btn-gold" style="font-family:'Manrope',sans-serif; font-weight:700; letter-spacing:1px; text-transform:uppercase; padding: 12px 24px; margin-top: 4px;">Gửi OTP xác nhận thay đổi</button>
+                </form>
+            </div>
+
+            <!-- Đổi mật khẩu -->
+            <div class="signature-panel">
+                <span class="panel-label" style="display: block; margin-bottom: 4px;">Bảo mật</span>
+                <h3 style="color: #d4af37; margin-bottom: 20px; font-size: 1.3rem;">Thay đổi mật khẩu</h3>
+
+                <form class="profile-form" th:action="@{/profile/change-password}" method="post" th:object="${changePasswordRequest}" style="margin: 0;">
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Mật khẩu hiện tại
+                        <input type="password" th:field="*{currentPassword}" placeholder="Nhập mật khẩu hiện tại"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('currentPassword')}" th:errors="*{currentPassword}"></div>
+
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Mật khẩu mới
+                        <input type="password" th:field="*{newPassword}" placeholder="Nhập mật khẩu mới"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('newPassword')}" th:errors="*{newPassword}"></div>
+
+                    <label style="font-family:'Manrope',sans-serif; color: rgba(243,228,205,0.75); font-size: 0.88rem;">Xác nhận mật khẩu mới
+                        <input type="password" th:field="*{confirmNewPassword}" placeholder="Nhập lại mật khẩu mới"/>
+                    </label>
+                    <div class="helper-text error-text" th:if="${#fields.hasErrors('confirmNewPassword')}" th:errors="*{confirmNewPassword}"></div>
+
+                    <button type="submit" class="btn btn-line" style="font-family:'Manrope',sans-serif; font-weight:600; letter-spacing:1px; text-transform:uppercase; padding: 12px 24px;">Đổi mật khẩu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script>
+async function redeemVoucher() {
+    if (!confirm('Bạn có chắc muốn đổi 100 điểm lấy Voucher 50K không?')) return;
+
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+    try {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+        if (csrfToken) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        const response = await fetch('/api/loyalty/redeem', {
+            method: 'POST',
+            headers
+        });
+        const data = await response.json();
+        
+        const resultDiv = document.getElementById('voucherResult');
+        resultDiv.style.display = 'block';
+        
+        if (data.success) {
+            resultDiv.style.backgroundColor = 'rgba(16, 185, 129, 0.1)';
+            resultDiv.style.color = '#10b981';
+            resultDiv.style.border = '1px solid rgba(16, 185, 129, 0.2)';
+            resultDiv.innerHTML = `<strong>${data.message}</strong><br>Mã Voucher của bạn: <span style="font-family: monospace; font-size: 1.1rem; color: #d4af37; user-select: all; padding: 2px 6px; background: rgba(0,0,0,0.5); border-radius: 4px; margin-top: 8px; display: inline-block;">${data.voucherCode}</span>`;
+        } else {
+            resultDiv.style.backgroundColor = 'rgba(239, 68, 68, 0.1)';
+            resultDiv.style.color = '#ef4444';
+            resultDiv.style.border = '1px solid rgba(239, 68, 68, 0.2)';
+            resultDiv.innerHTML = `Lỗi: ${data.message}`;
+        }
+    } catch (err) {
+        alert('Có lỗi xảy ra, vui lòng thử lại!');
+    }
+}
+</script>
+</body>
+</html>

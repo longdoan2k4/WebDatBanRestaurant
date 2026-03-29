@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Xác thực OTP | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+    <style>
+        body.auth-luxury { margin: 0; min-height: 100vh; background: #0a0705; }
+        .auth-luxury-bg { position: fixed; inset: 0; z-index: 0; background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat; }
+        .auth-luxury-bg::after { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(10,7,5,0.88) 0%, rgba(10,7,5,0.72) 50%, rgba(30,20,10,0.82) 100%); }
+        .auth-luxury-wrap { position: relative; z-index: 2; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 80px 20px 40px; }
+        .auth-glass { width: 100%; max-width: 440px; background: rgba(15,10,7,0.72); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 1px solid rgba(212,175,55,0.22); border-radius: 24px; padding: 44px 40px; box-shadow: 0 32px 80px rgba(0,0,0,0.55); }
+        .auth-logo { text-align: center; margin-bottom: 24px; }
+        .auth-logo-icon { width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg,#d4af37,#aa7c11); display: inline-flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond',serif; font-size: 1.6rem; color: #1a140b; font-weight: 700; margin-bottom: 10px; }
+        .auth-brand { font-family:'Cormorant Garamond',serif; color:#d4af37; font-size:1.05rem; letter-spacing:2px; text-transform:uppercase; display:block; }
+        .auth-title { font-family:'Cormorant Garamond',serif; color:#d4af37; font-size:1.9rem; font-weight:700; text-align:center; margin:0 0 10px; }
+        .auth-subtitle { font-family:'Manrope',sans-serif; font-size:0.9rem; color:rgba(243,228,205,0.6); text-align:center; margin:0 0 28px; line-height:1.6; }
+        .auth-subtitle strong { color:#f9e7cb; }
+        .auth-glass label { display:block; font-family:'Manrope',sans-serif; font-size:0.78rem; color:rgba(243,228,205,0.55); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px; }
+        .otp-input { width:100%; box-sizing:border-box; background:rgba(255,255,255,0.04); border:1px solid rgba(212,175,55,0.25); border-radius:12px; padding:16px; font-family:'Manrope',sans-serif; font-size:1.8rem; font-weight:700; color:#d4af37; outline:none; text-align:center; letter-spacing:12px; transition:border-color .2s,box-shadow .2s; margin-bottom:20px; }
+        .otp-input::placeholder { color:rgba(212,175,55,0.2); letter-spacing:8px; font-size:1.4rem; }
+        .otp-input:focus { border-color:#d4af37; box-shadow:0 0 0 3px rgba(212,175,55,0.15); }
+        .auth-btn-primary { display:block; width:100%; padding:13px; background:linear-gradient(90deg,#c9a227,#d4af37,#c9a227); color:#1a120b; font-family:'Manrope',sans-serif; font-weight:700; font-size:0.92rem; letter-spacing:1.5px; text-transform:uppercase; border:none; border-radius:10px; cursor:pointer; transition:opacity .2s,box-shadow .2s; box-shadow:0 4px 20px rgba(212,175,55,0.3); }
+        .auth-btn-primary:hover { opacity:.88; }
+        .auth-btn-ghost { display:block; width:100%; padding:11px; margin-top:10px; background:transparent; border:1px solid rgba(212,175,55,0.3); border-radius:10px; color:rgba(243,228,205,0.7); font-family:'Manrope',sans-serif; font-size:0.88rem; cursor:pointer; transition:background .2s,border-color .2s; }
+        .auth-btn-ghost:hover { background:rgba(212,175,55,0.08); border-color:rgba(212,175,55,0.55); }
+        .auth-glass .alert { border-radius:10px; margin-bottom:16px; font-family:'Manrope',sans-serif; font-size:0.88rem; }
+    </style>
+</head>
+<body class="auth-luxury">
+<div class="auth-luxury-bg"></div>
+
+<div class="auth-luxury-wrap">
+    <div class="auth-glass">
+        <div class="auth-logo">
+            <div class="auth-logo-icon">R</div>
+            <span class="auth-brand">Rivière Restaurant</span>
+        </div>
+
+        <h2 class="auth-title">Nhập Mã OTP</h2>
+        <p class="auth-subtitle">
+            Mã OTP đã được gửi đến email: <strong th:text="${maskedEmail}">em***@mail.com</strong><br/>
+            Vui lòng nhập mã để hoàn tất xác thực.
+        </p>
+
+        <div class="alert error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+        <div class="alert info"    th:if="${infoMessage}"    th:text="${infoMessage}"></div>
+        <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+
+        <form th:action="@{/otp/verify}" method="post">
+            <label>Mã OTP (6 số)</label>
+            <input class="otp-input" type="text" name="otp" maxlength="6" minlength="6" pattern="[0-9]{6}" placeholder="······" required autocomplete="one-time-code"/>
+            <button type="submit" class="auth-btn-primary">Xác thực ngay</button>
+        </form>
+
+        <form th:action="@{/otp/resend}" method="post">
+            <button type="submit" class="auth-btn-ghost">Gửi lại mã OTP</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

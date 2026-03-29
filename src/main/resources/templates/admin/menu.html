@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Quản lý menu | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">Menu manager</span>
+        <h1>Quản lý thực đơn</h1>
+        <p>Thêm món ăn, cập nhật mô tả, hình ảnh và giá bán.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container admin-layout">
+        <div class="table-card">
+            <h3 th:text="${menuItemForm.id != null ? 'Chỉnh sửa món ăn' : 'Thêm món mới'}">Thêm món mới</h3>
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+            <form class="stack-form" th:action="@{/admin/menu/save}" th:object="${menuItemForm}" method="post" enctype="multipart/form-data">
+                <input type="hidden" th:field="*{id}"/>
+                <input type="hidden" th:field="*{imageUrl}"/>
+                <label>Tên món
+                    <input type="text" th:field="*{name}" placeholder="" required/>
+                </label>
+                <label>Nhóm món
+                    <select th:field="*{category}" required>
+                        <option th:each="category : ${categories}" th:value="${category}" th:text="${category.displayName}"></option>
+                    </select>
+                </label>
+                <label>Tải ảnh từ file
+                    <input type="file" name="imageFile" accept="image/*"/>
+                </label>
+                <div class="muted-mini" th:if="${menuItemForm.imageUrl != null and !#strings.isEmpty(menuItemForm.imageUrl)}">
+                    Ảnh hiện tại: <span th:text="${menuItemForm.imageUrl}">/images/steak.svg</span>
+                </div>
+                <label>Mô tả
+                    <textarea rows="4" th:field="*{description}" placeholder="Mô tả món ăn, điểm nổi bật, hương vị..."></textarea>
+                </label>
+                <label>Giá tiền
+                    <input type="number" th:field="*{price}" min="1000" step="1000" required/>
+                </label>
+
+                <label class="checkbox-row">
+                    <input type="checkbox" th:field="*{available}"/>
+                    <span>Đang phục vụ</span>
+                </label>
+
+                <div class="action-row">
+                    <button type="submit" class="btn btn-primary">Lưu món ăn</button>
+                    <a class="btn btn-ghost" th:href="@{/admin/menu}">Làm mới form</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Danh sách món</span>
+                    <h3>Thực đơn hiện có</h3>
+                </div>
+            </div>
+            <div class="menu-preview-grid compact-grid">
+                <article class="dish-card small" th:each="item : ${menuItems}">
+                    <img src="../../static/images/steak.svg" alt="Món ăn" th:src="${item.imageUrl}" th:alt="${item.name}"/>
+                    <div class="dish-content">
+                        <span class="pill" th:text="${item.category.displayName}">Món chính</span>
+                        <h3 th:text="${item.name}">Tên món</h3>
+                        <p th:text="${item.description}">Mô tả</p>
+                        <div class="dish-footer">
+                            <strong th:text="${item.priceDisplay}">250.000 ₫</strong>
+                                <span class="status-badge"
+                                    th:classappend="${item.available} ? ' status-confirmed' : ' status-cancelled'"
+                                    th:text="${item.available ? 'Đang phục vụ' : 'Ngưng phục vụ'}">Đang phục vụ</span>
+                            <div class="inline-actions">
+                                <a class="btn btn-small btn-ghost" th:href="@{/admin/menu(editId=${item.id})}">Sửa</a>
+                                <form th:action="@{/admin/menu/delete}" method="post">
+                                    <input type="hidden" name="id" th:value="${item.id}"/>
+                                    <button class="btn btn-small btn-danger" type="submit">Xóa</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

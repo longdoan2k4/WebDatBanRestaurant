@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
+    <title>Booking của tôi | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}" />
+</head>
+
+<body class="landing-page">
+    <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+    <!-- Hero Banner -->
+    <header class="luxe-hero" style="min-height: 40vh; padding-top: 120px;">
+        <div class="luxe-hero-overlay"></div>
+        <div class="luxe-lines" aria-hidden="true"></div>
+        <div class="container" style="position: relative; z-index: 2; text-align: center; padding-bottom: 48px;">
+            <span class="hero-kicker">Khách hàng</span>
+            <h1 style="margin: 16px auto 0; color: #f9e7cb; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; text-shadow: 0 18px 35px rgba(0,0,0,0.35);">
+                Lịch Sử Đặt Bàn
+            </h1>
+            <div class="hero-signature" style="font-size: clamp(1.3rem, 2.5vw, 1.8rem); margin-top: 10px;">Quản lý toàn bộ booking của bạn</div>
+        </div>
+    </header>
+
+    <section class="section section-charcoal" style="background: #0e0a08;">
+        <div class="container">
+            <div class="alert success" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="alert error"   th:if="${errorMessage}"   th:text="${errorMessage}"></div>
+            <div class="alert info"    th:if="${infoMessage}"    th:text="${infoMessage}"></div>
+
+            <!-- Empty state -->
+            <div th:if="${#lists.isEmpty(bookings)}" style="text-align: center; padding: 60px 20px;">
+                <h3 style="font-family: 'Cormorant Garamond', serif; color: #d4af37; font-size: 2rem;">Bạn chưa có booking nào.</h3>
+                <p style="color: rgba(243,228,205,0.7); font-family: 'Manrope', sans-serif; margin: 12px 0 28px;">Hãy bắt đầu với một bàn thật đẹp cho bữa tối tiếp theo.</p>
+                <a class="btn btn-gold" th:href="@{/booking/start}" style="font-family:'Manrope',sans-serif; font-weight:700; padding: 14px 32px;">Đặt bàn ngay</a>
+            </div>
+
+            <!-- Booking list -->
+            <div class="booking-list" th:if="${!#lists.isEmpty(bookings)}">
+                <article class="booking-card" th:each="booking : ${bookings}"
+                    style="background: linear-gradient(155deg, rgba(32,23,16,0.84), rgba(20,15,11,0.86)); border: 1px solid rgba(232,207,170,0.2); border-radius: 20px; padding: 28px; margin-bottom: 24px;">
+
+                    <div class="booking-top" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+                        <div>
+                            <span class="pill" th:text="${booking.diningTable.location}">Tầng 1</span>
+                            <h3 style="font-family: 'Cormorant Garamond', serif; color: #f9e7cb; font-size: 1.6rem; margin: 6px 0 2px;" th:text="${booking.diningTable.name}">Bàn Lotus 01</h3>
+                            <p style="font-family: 'Manrope', sans-serif; color: rgba(243,228,205,0.65); font-size: 0.9rem;" th:text="${booking.diningTable.summaryLine}">Mô tả</p>
+                        </div>
+                        <span class="status-badge"
+                            th:classappend="${booking.status.name() == 'CONFIRMED'} ? ' status-confirmed' :
+                                           (${booking.status.name() == 'CANCELLED'} ? ' status-cancelled' :
+                                           (${booking.status.name() == 'NO_SHOW'} ? ' status-no-show' : ''))"
+                            th:text="${booking.status.displayName}">Đã xác nhận</span>
+                    </div>
+
+                    <!-- Meta info -->
+                    <div class="booking-meta" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; padding: 16px 0; border-top: 1px solid rgba(232,207,170,0.15); border-bottom: 1px solid rgba(232,207,170,0.15);">
+                        <div style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.8);">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Ngày giờ</span>
+                            <strong style="color: #f9e7cb;" th:text="${#temporals.format(booking.bookingDateTime, 'dd/MM/yyyy HH:mm')}"></strong>
+                        </div>
+                        <div style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.8);">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Số khách</span>
+                            <strong style="color: #f9e7cb;" th:text="${booking.guestCount}"></strong>
+                        </div>
+                        <div style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.8);">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Tổng món</span>
+                            <strong style="color: #d4af37;" th:text="${booking.totalAmountDisplay}" th:attr="id=${'booking-total-' + booking.id}">0 đ</strong>
+                        </div>
+                        <div style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.8);"
+                             th:if="${booking.discountAmount != null and booking.discountAmount.compareTo(T(java.math.BigDecimal).ZERO) > 0}">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Giảm giá</span>
+                            <strong style="color: #fca5a5;" th:text="${'- ' + booking.discountAmountDisplay}" th:attr="id=${'booking-discount-' + booking.id}">- 50.000 đ</strong>
+                        </div>
+                        <div style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.8);">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Thành tiền</span>
+                            <strong style="color: #f9e7cb;" th:text="${booking.finalAmountDisplay}" th:attr="id=${'booking-final-' + booking.id}">0 đ</strong>
+                        </div>
+                    </div>
+
+                    <!-- Payment info -->
+                    <div class="payment-strip" style="display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 16px; font-family: 'Manrope', sans-serif; font-size: 0.9rem;">
+                        <div>
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Phương thức</span>
+                            <strong style="color: #f9e7cb;" th:text="${booking.paymentMethod != null ? booking.paymentMethod.displayName : 'Thanh toán tại nhà hàng'}"></strong>
+                        </div>
+                        <div>
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Thanh toán</span>
+                            <span class="status-badge"
+                                th:classappend="${booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID'} ? ' payment-paid' :
+                                               (${booking.paymentStatus != null and booking.paymentStatus.name() == 'PENDING'} ? ' payment-pending' :
+                                               (${booking.paymentStatus != null and booking.paymentStatus.name() == 'FAILED'} ? ' payment-failed' :
+                                               (${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUND_PENDING'} ? ' payment-refund-pending' :
+                                               (${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUNDED'} ? ' payment-refunded' : ' payment-unpaid'))))"
+                                th:text="${booking.paymentStatus != null ? booking.paymentStatus.displayName : 'Chưa thanh toán'}">Chưa thanh toán</span>
+                        </div>
+                        <div th:if="${booking.paidAt != null}">
+                            <span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Cập nhật lúc</span>
+                            <strong style="color: #f9e7cb;" th:text="${#temporals.format(booking.paidAt, 'dd/MM/yyyy HH:mm')}"></strong>
+                        </div>
+                    </div>
+
+                    <!-- Pre-ordered items -->
+                    <div th:if="${booking.hasPreOrder()}" class="ordered-items" style="margin-bottom: 16px; padding: 14px; background: rgba(212,175,55,0.06); border: 1px solid rgba(212,175,55,0.15); border-radius: 12px;">
+                        <h4 style="font-family: 'Cormorant Garamond', serif; color: #d4af37; margin: 0 0 10px;">Món đã đặt trước</h4>
+                        <div class="ordered-row" th:each="item : ${booking.items}" style="display: flex; justify-content: space-between; font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.85); margin-bottom: 6px;">
+                            <span th:text="${item.menuItem.name + ' x' + item.quantity}">Món ăn x1</span>
+                            <strong style="color: #fde68a;" th:text="${item.lineTotalDisplay}">150.000 đ</strong>
+                        </div>
+                    </div>
+
+                    <p th:if="${booking.notes != null and !#strings.isEmpty(booking.notes)}" style="font-family: 'Manrope', sans-serif; font-size: 0.9rem; color: rgba(243,228,205,0.75); margin-bottom: 16px;">
+                        <strong style="color: #f9e7cb;">Ghi chú:</strong> <span th:text="${booking.notes}"></span>
+                    </p>
+
+                    <!-- Action Row -->
+                    <div class="action-row action-row-wrap" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                        <div th:if="${vnpayConfigured and booking.canPayOnline()}"
+                             style="display:flex; flex-wrap:wrap; gap:8px; width:100%; margin-bottom:8px;">
+                            <input type="text"
+                                   th:attr="id=${'voucher-input-' + booking.id}, data-booking-id=${booking.id}"
+                                   placeholder="Nhập mã Voucher (ví dụ: RIVIERE-50K-XXXX)"
+                                   style="flex:1; min-width:240px; padding:10px 12px; border-radius:10px; border:1px solid rgba(212,175,55,0.3); background:rgba(0,0,0,0.22); color:#f9e7cb; font-family:'Manrope',sans-serif;" />
+                            <button type="button"
+                                    th:attr="data-booking-id=${booking.id}"
+                                    class="btn btn-line js-apply-voucher-btn"
+                                    style="font-family:'Manrope',sans-serif; font-weight:600;">
+                                Áp dụng
+                            </button>
+                            <div th:attr="id=${'voucher-feedback-' + booking.id}"
+                                 style="width:100%; font-family:'Manrope',sans-serif; font-size:0.85rem; color:rgba(243,228,205,0.75);"></div>
+                        </div>
+
+                        <a class="btn btn-gold" th:if="${vnpayConfigured and booking.canPayOnline()}"
+                           th:href="@{/payment/vnpay/pay(bookingId=${booking.id})}"
+                           th:text="${booking.paymentStatus != null and booking.paymentStatus.name() == 'FAILED'} ? 'Thanh toán lại bằng VNPAY' : (${booking.paymentStatus != null and booking.paymentStatus.name() == 'PENDING'} ? 'Tiếp tục thanh toán VNPAY' : 'Thanh toán bằng VNPAY')"
+                           style="font-family:'Manrope',sans-serif; font-weight:700;">Thanh toán bằng VNPAY</a>
+
+                        <form th:if="${booking.status.name() == 'CONFIRMED'}" th:action="@{/booking/my/cancel}"
+                            method="post" class="js-cancel-confirm-form"
+                            data-confirm-message="Bạn chắc chắn muốn hủy bàn? Nếu đã thanh toán và hủy gần giờ đến, bạn sẽ mất 30% phí.">
+                            <input type="hidden" name="bookingId" th:value="${booking.id}" />
+                            <button class="btn btn-danger" type="submit" style="font-family:'Manrope',sans-serif; font-weight:600;">Hủy bàn</button>
+                        </form>
+
+                        <div class="inline-note" th:if="${!vnpayConfigured and booking.canPayOnline()}">
+                            VNPAY chưa được cấu hình. Hãy cập nhật TMN code và Secret Key.
+                        </div>
+                        <div class="inline-note" th:if="${booking.status.name() == 'CONFIRMED' and booking.paymentStatus != null and booking.paymentStatus.name() == 'PAID'}">
+                            Nếu bạn hủy bàn trước dưới 4 tiếng so với giờ đến, hệ thống sẽ thu phí hủy 30%.
+                        </div>
+                        <div class="inline-note" th:if="${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUND_PENDING'}">
+                            Nhà hàng đang gửi yêu cầu hoàn tiền VNPAY cho booking này.
+                        </div>
+                        <div class="inline-note" th:if="${booking.paymentStatus != null and booking.paymentStatus.name() == 'REFUNDED'}">
+                            Booking này đã được hoàn tiền thành công qua VNPAY.
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cancel Confirm Modal -->
+    <style>
+        .confirm-modal-backdrop {
+            position: fixed; inset: 0; z-index: 9000;
+            background: rgba(5, 3, 2, 0.75);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .confirm-modal-backdrop[hidden] { display: none; }
+        .confirm-modal {
+            width: 100%; max-width: 440px;
+            background: #1a120b;
+            border: 1px solid rgba(212, 175, 55, 0.28);
+            border-radius: 20px;
+            padding: 36px 32px;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04) inset;
+        }
+        .confirm-modal h3 {
+            font-family: 'Cormorant Garamond', serif;
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0 0 12px;
+        }
+        .confirm-modal p {
+            font-family: 'Manrope', sans-serif;
+            color: rgba(243, 228, 205, 0.75);
+            font-size: 0.93rem;
+            line-height: 1.7;
+            margin: 0 0 28px;
+        }
+        .confirm-modal-actions {
+            display: flex; gap: 12px; justify-content: flex-end;
+        }
+        #cancelConfirmDismiss {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 10px;
+            color: rgba(243,228,205,0.65);
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background .2s, border-color .2s;
+        }
+        #cancelConfirmDismiss:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.35);
+        }
+        #cancelConfirmAccept {
+            padding: 10px 22px;
+            background: transparent;
+            border: 1px solid rgba(220, 50, 50, 0.6);
+            border-radius: 10px;
+            color: rgb(252, 165, 165);
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background .2s, border-color .2s, color .2s;
+        }
+        #cancelConfirmAccept:hover {
+            background: rgba(220, 50, 50, 0.85);
+            border-color: rgb(220, 50, 50);
+            color: #fff;
+        }
+    </style>
+
+    <div id="cancelConfirmModal" class="confirm-modal-backdrop" hidden>
+        <div class="confirm-modal" role="dialog" aria-modal="true" aria-labelledby="cancelConfirmTitle">
+            <h3 id="cancelConfirmTitle">Xác nhận hủy bàn</h3>
+            <p id="cancelConfirmMessage">Bạn chắc chắn muốn hủy bàn?</p>
+            <div class="confirm-modal-actions">
+                <button type="button" id="cancelConfirmDismiss">Quay lại</button>
+                <button type="button" id="cancelConfirmAccept">Xác nhận hủy</button>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+    <script>
+        (function () {
+            const modal = document.getElementById("cancelConfirmModal");
+            if (!modal) return;
+            const messageNode = document.getElementById("cancelConfirmMessage");
+            const dismissButton = document.getElementById("cancelConfirmDismiss");
+            const acceptButton = document.getElementById("cancelConfirmAccept");
+            let pendingForm = null;
+
+            function closeModal() { modal.hidden = true; pendingForm = null; }
+
+            document.querySelectorAll(".js-cancel-confirm-form").forEach((form) => {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    pendingForm = form;
+                    if (messageNode) messageNode.textContent = form.dataset.confirmMessage || "Bạn chắc chắn muốn hủy bàn?";
+                    modal.hidden = false;
+                });
+            });
+
+            if (dismissButton) dismissButton.addEventListener("click", closeModal);
+            if (acceptButton) acceptButton.addEventListener("click", function () { if (pendingForm) pendingForm.submit(); });
+            modal.addEventListener("click", function (event) { if (event.target === modal) closeModal(); });
+            document.addEventListener("keydown", function (event) { if (event.key === "Escape" && !modal.hidden) closeModal(); });
+        })();
+
+        (function () {
+            const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+            const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content') || 'X-CSRF-TOKEN';
+
+            document.querySelectorAll('.js-apply-voucher-btn').forEach((button) => {
+                button.addEventListener('click', async function () {
+                    const bookingId = this.getAttribute('data-booking-id');
+                    const input = document.getElementById(`voucher-input-${bookingId}`);
+                    const feedback = document.getElementById(`voucher-feedback-${bookingId}`);
+                    if (!input || !feedback) return;
+
+                    const voucherCode = (input.value || '').trim();
+                    if (!voucherCode) {
+                        feedback.textContent = 'Vui lòng nhập mã voucher.';
+                        feedback.style.color = '#fca5a5';
+                        return;
+                    }
+
+                    try {
+                        const formBody = new URLSearchParams({ bookingId, voucherCode }).toString();
+                        const headers = {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'Accept': 'application/json'
+                        };
+                        if (csrfToken) {
+                            headers[csrfHeader] = csrfToken;
+                        }
+
+                        const response = await fetch('/api/bookings/apply-voucher', {
+                            method: 'POST',
+                            headers,
+                            body: formBody
+                        });
+                        const data = await response.json();
+                        if (!response.ok || !data.success) {
+                            throw new Error(data.message || 'Không thể áp dụng voucher.');
+                        }
+
+                        feedback.textContent = data.message;
+                        feedback.style.color = '#86efac';
+
+                        const finalNode = document.getElementById(`booking-final-${bookingId}`);
+                        if (finalNode && data.finalAmountDisplay) {
+                            finalNode.textContent = data.finalAmountDisplay;
+                        }
+
+                        let discountNode = document.getElementById(`booking-discount-${bookingId}`);
+                        if (!discountNode) {
+                            const totalNode = document.getElementById(`booking-total-${bookingId}`);
+                            if (totalNode && totalNode.parentElement) {
+                                const discountBlock = document.createElement('div');
+                                discountBlock.style.cssText = "font-family:'Manrope',sans-serif; font-size:0.9rem; color:rgba(243,228,205,0.8);";
+                                discountBlock.innerHTML = `<span style="color: rgba(243,228,205,0.5); font-size: 0.8rem; display: block; margin-bottom: 2px;">Giảm giá</span>
+                                    <strong id="booking-discount-${bookingId}" style="color: #fca5a5;">- 0 đ</strong>`;
+                                totalNode.parentElement.insertAdjacentElement('afterend', discountBlock);
+                                discountNode = document.getElementById(`booking-discount-${bookingId}`);
+                            }
+                        }
+                        if (discountNode && data.discountDisplay) {
+                            discountNode.textContent = `- ${data.discountDisplay}`;
+                        }
+                    } catch (error) {
+                        feedback.textContent = error.message || 'Có lỗi xảy ra khi áp dụng voucher.';
+                        feedback.style.color = '#fca5a5';
+                    }
+                });
+            });
+        })();
+    </script>
+</body>
+
+</html>

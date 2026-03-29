@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán thất bại</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="min-h-screen bg-rose-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-xl bg-white rounded-2xl shadow-xl p-8 border border-rose-100">
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-14 h-14 rounded-full bg-rose-100 flex items-center justify-center">
+                <span class="text-3xl text-rose-600">!</span>
+            </div>
+            <div>
+                <h1 class="text-2xl font-bold text-rose-700" th:text="${title ?: 'Thanh toan that bai'}">Thanh toan that
+                    bai</h1>
+                <p class="text-slate-600 mt-1" th:text="${message ?: 'Khong the hoan tat giao dich.'}">Khong the hoan
+                    tat giao dich.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+            <div class="rounded-lg bg-slate-50 p-3">
+                <p class="text-slate-500">Mã phản hồi</p>
+                <p class="font-semibold text-slate-800" th:text="${responseCode ?: '-'}">-</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3">
+                <p class="text-slate-500">Mã tham chiếu</p>
+                <p class="font-semibold text-slate-800" th:text="${txnRef ?: '-'}">-</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3">
+                <p class="text-slate-500">Số tiền</p>
+                <p class="font-semibold text-slate-800" th:text="${amount ?: '-'}">-</p>
+            </div>
+            <div class="rounded-lg bg-slate-50 p-3">
+                <p class="text-slate-500">Ngân hàng</p>
+                <p class="font-semibold text-slate-800" th:text="${bankCode ?: '-'}">-</p>
+            </div>
+        </div>
+
+        <div class="mt-8 flex gap-3">
+            <a th:href="@{/booking/my}"
+                class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-rose-600 text-white font-medium hover:bg-rose-700">
+                Quay về booking của tôi
+            </a>
+            <a th:href="@{/booking/start}"
+                class="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-slate-100 text-slate-700 font-medium hover:bg-slate-200">
+                Thử lại
+            </a>
+        </div>
+    </div>
+</body>
+
+</html>

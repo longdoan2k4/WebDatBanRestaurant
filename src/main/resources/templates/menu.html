@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Thực đơn | Rivière Restaurant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body class="landing-page menu-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<!-- Hero Banner (Đồng bộ Trang chủ) -->
+<header class="menu-hero">
+    <div class="menu-hero-overlay"></div>
+    <div class="container luxe-hero-grid">
+        <div class="menu-hero-content">
+            <span class="section-tag">Fine Dining Menu</span>
+            <h1>Thực Đơn</h1>
+            <p>Hành trình đánh thức mọi giác quan</p>
+        </div>
+
+        <aside class="signature-panel">
+            <span class="panel-label">Signature Experience</span>
+            <h3>Signature Experience</h3>
+            <ul class="signature-list">
+                <li>Thưởng thức thực đơn nếm thử</li>
+                <li>Không gian lãng mạn</li>
+                <li>Dịch vụ đẳng cấp</li>
+            </ul>
+            <div class="inline-tags">
+                <span class="pill">Fine Dining</span>
+                <span class="pill">Private Dining</span>
+                <span class="pill">Luxury Experience</span>
+            </div>
+            <a class="btn btn-gold hero-panel-cta" th:href="@{/booking/start}">Giữ chỗ ngay</a>
+        </aside>
+    </div>
+</header>
+
+<!-- Category Filter (Đồng bộ cách bố cục index) -->
+<section class="menu-filter-shell" th:if="${groupedMenu != null and !groupedMenu.isEmpty()}">
+    <div class="container">
+        <div class="menu-filter" role="tablist" aria-label="Phân loại thực đơn">
+            <button type="button" class="menu-filter-btn is-active" data-category="all">Tất cả</button>
+            <button type="button"
+                    class="menu-filter-btn"
+                    th:each="entry : ${groupedMenu}"
+                    th:data-category="${entry.key.name()}"
+                    th:text="${entry.key.displayName}">
+                Món chính
+            </button>
+        </div>
+    </div>
+</section>
+
+<!-- Menu Grid - Dùng culinary-gallery + dish-card y hệt trang chủ -->
+<section class="section section-chocolate" th:if="${groupedMenu != null and !groupedMenu.isEmpty()}">
+    <div class="container">
+        <div th:each="entry : ${groupedMenu}" class="menu-group" style="margin-bottom: 64px;" th:attr="data-category=${entry.key.name()}">
+            <!-- Category Heading giống index -->
+            <div class="section-heading section-heading-center">
+                <span class="section-tag" th:text="${entry.key.displayName}">Món chính</span>
+                <h2 class="home-title-compact" th:text="${entry.key.displayName}">Tuyệt tác ẩm thực tuyển chọn</h2>
+            </div>
+
+            <!-- Dish-card gallery giống index.html -->
+            <div class="culinary-gallery">
+                <article class="dish-card" th:each="item : ${entry.value}">
+                    <img
+                        src="../static/images/uploads/dish-main.jpg"
+                        alt="Món ăn nổi bật"
+                        th:src="${item.imageUrl}"
+                        th:alt="${item.name}"
+                    />
+                    <div class="dish-overlay"></div>
+                    <div class="dish-caption">
+                        <h3 th:text="${item.name}">Tôm hùm xào bơ tỏi</h3>
+                        <p th:text="${item.description}">Hương vị đậm đà, trình bày tinh tế.</p>
+                        <strong th:text="${item.priceDisplay}">750.000 ₫</strong>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="menu-empty" th:if="${groupedMenu == null or groupedMenu.isEmpty()}">
+            <p>Thực đơn đang được cập nhật. Quý khách vui lòng quay lại sau.</p>
+        </div>
+    </div>
+</section>
+
+<a class="floating-cta" th:href="@{/booking/start}">Giữ chỗ của bạn</a>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+<script src="../static/js/app.js" th:src="@{/js/app.js}"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const btns = document.querySelectorAll(".menu-filter-btn");
+        const groups = document.querySelectorAll(".menu-group");
+
+        btns.forEach(btn => {
+            btn.addEventListener("click", function () {
+                const cat = this.dataset.category;
+                btns.forEach(b => b.classList.remove("is-active"));
+                this.classList.add("is-active");
+                groups.forEach(g => {
+                    g.style.display = (cat === "all" || g.dataset.category === cat) ? "block" : "none";
+                });
+            });
+        });
+    });
+</script>
+</body>
+</html>

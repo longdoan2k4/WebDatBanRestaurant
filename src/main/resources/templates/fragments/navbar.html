@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html
+  lang="vi"
+  xmlns:th="http://www.thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
+  <body>
+    <nav class="nav-shell" th:fragment="navbar">
+      <div class="container nav-inner">
+        <a th:href="@{/}" class="brand">
+          <span class="brand-mark">R</span>
+          <span>
+            <strong>Rivière Restaurant</strong>
+            <small>Fine Dining & Luxury Experience</small>
+          </span>
+        </a>
+
+        <div class="nav-links">
+          <a href="/#top" th:href="@{/}">Trang chủ</a>
+          <a th:href="@{/menu}">Thực đơn</a>
+          <a href="/#about">Về chúng tôi</a>
+          <a href="/#contact">Liên hệ</a>
+          <a th:href="@{/booking/start}" sec:authorize="hasAnyRole('CUSTOMER','ADMIN')">Đặt bàn</a>
+          <a th:href="@{/booking/my}" sec:authorize="hasAnyRole('CUSTOMER','ADMIN')">Đặt chỗ của tôi</a>
+        </div>
+
+        <div class="nav-actions">
+          <div class="nav-user-menu" th:if="${currentUser != null}">
+            <button class="nav-user-trigger" type="button" aria-haspopup="true" aria-label="Tùy chọn tài khoản">
+              <span
+                class="nav-avatar"
+                th:text="${currentUser.fullName != null and !#strings.isEmpty(currentUser.fullName) ? #strings.substring(currentUser.fullName, 0, 1).toUpperCase() : 'U'}"
+                th:title="${currentUser.fullName}"
+              >
+                U
+              </span>
+              <span
+                class="nav-user-short"
+                th:text="${currentUser.fullName != null and #strings.length(currentUser.fullName) > 10 ? #strings.substring(currentUser.fullName, 0, 10) + '…' : currentUser.fullName}"
+                th:title="${currentUser.fullName}"
+              >
+                Tài khoản
+              </span>
+              <span th:if="${currentUser.isVip}" class="bg-yellow-600 text-white text-xs font-bold px-2 py-0.5 rounded ml-2 uppercase tracking-wide shadow-[0_0_8px_rgba(202,138,4,0.6)]">VIP</span>
+              <svg class="nav-chevron" viewBox="0 0 20 20" aria-hidden="true">
+                <path d="M5.5 7.5 10 12l4.5-4.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+
+            <div class="nav-user-dropdown" role="menu" aria-label="Tài khoản">
+              <div class="dropdown-user-head">
+                <strong>
+                  <span th:text="${currentUser.fullName}">Nguyễn Trần Duy Luân</span>
+                  <span th:if="${currentUser.isVip}" class="bg-yellow-600 text-white text-xs font-bold px-2 py-0.5 rounded ml-2 uppercase tracking-wide shadow-[0_0_8px_rgba(202,138,4,0.6)]">VIP</span>
+                </strong>
+                <small th:text="${currentUser.roleSummary}">Khách hàng</small>
+                <div style="margin-top: 8px; font-size: 0.85rem; color: rgba(243,228,205,0.8);">
+                  🎯 Điểm tích luỹ: <strong style="color: #d4af37;" th:text="${currentUser.loyaltyPoints}">0</strong>
+                </div>
+              </div>
+
+              <a class="dropdown-item" th:href="@{/profile}">Hồ sơ</a>
+
+              <form th:action="@{/logout}" method="post">
+                <button class="dropdown-item dropdown-logout" type="submit">Đăng xuất</button>
+              </form>
+            </div>
+          </div>
+
+          <a class="btn btn-ghost" th:if="${currentUser == null}" th:href="@{/login}">
+            Đăng nhập
+          </a>
+          <a class="btn btn-primary" th:if="${currentUser == null}" th:href="@{/register}">
+            Đăng ký
+          </a>
+        </div>
+      </div>
+    </nav>
+  </body>
+</html>

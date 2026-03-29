@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Theo doi order bep | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="page-header admin">
+    <div class="container">
+        <span class="section-tag">Kitchen orders</span>
+        <h1>Theo dõi đơn đang phục vụ</h1>
+        <p>Danh sách món đã gọi theo từng bàn từ các booking đang hoạt động.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="table-card">
+            <div class="table-card-head">
+                <div>
+                    <span class="section-tag">Bếp</span>
+                    <h3>Món cần xử lý</h3>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Bàn</th>
+                        <th>Tầng</th>
+                        <th>Loại phòng</th>
+                        <th>NGÀY GIỜ ĐẾN</th>
+                        <th>Món ăn</th>
+                        <th>Số lượng</th>
+                        <th>Ghi chú</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <th:block th:if="${#lists.isEmpty(bookings)}">
+                        <td colspan="7" class="empty-cell">Chua co mon nao can xu ly.</td>
+                    </th:block>
+
+                    <th:block th:each="booking : ${bookings}">
+                        <tr th:each="item, stat : ${booking.items}">
+                            <td th:if="${stat.index == 0}"
+                                th:text="${booking.diningTable.tableNumber != null ? booking.diningTable.tableNumber : booking.diningTable.name}"
+                                th:rowspan="${booking.items.size()}">T1-01</td>
+                            <td th:if="${stat.index == 0}" th:text="${booking.diningTable.floor}" th:rowspan="${booking.items.size()}">Tang 1</td>
+                            <td th:if="${stat.index == 0}" th:text="${booking.diningTable.roomType}" th:rowspan="${booking.items.size()}">VIP</td>
+                            <td th:if="${stat.index == 0}"
+                                th:text="${booking.bookingDateTime != null ? #temporals.format(booking.bookingDateTime, 'dd/MM/yyyy HH:mm') : '-'}"
+                                th:rowspan="${booking.items.size()}">20/03/2026 19:00</td>
+                            <td th:text="${item.menuItem.name}">Vit quay Bac Kinh</td>
+                            <td th:text="${item.quantity}">2</td>
+                            <td th:if="${stat.index == 0}"
+                                th:text="${booking.notes != null and !#strings.isEmpty(booking.notes) ? booking.notes : '-'}"
+                                th:rowspan="${booking.items.size()}">-</td>
+                        </tr>
+                    </th:block>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Xác thực OTP khôi phục mật khẩu | Rivière Restaurant</title>
+    <link rel="stylesheet" href="../static/css/style.css" th:href="@{/css/style.css}"/>
+</head>
+<body class="auth-page">
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<section class="auth-shell">
+    <div class="auth-card wide">
+        <div class="auth-copy">
+            <span class="section-tag">Xác thực OTP</span>
+            <h1>Xác thực mã OTP để tiếp tục đặt lại mật khẩu</h1>
+            <p>
+                Mã OTP đã được gửi đến email:
+                <strong th:text="${maskedEmail}">em***@mail.com</strong>.
+            </p>
+        </div>
+
+        <div class="auth-form-wrap">
+            <form class="auth-form" th:action="@{/forgot-password/verify-otp}" method="post">
+                <h2>Nhập mã OTP</h2>
+
+                <div class="alert error" th:if="${errorMessage}" th:text="${errorMessage}">OTP sai</div>
+                <div class="alert info" th:if="${infoMessage}" th:text="${infoMessage}">Thông báo</div>
+                <div class="alert success" th:if="${successMessage}" th:text="${successMessage}">Thành công</div>
+
+                <label>Mã OTP (6 số)
+                    <input type="text" name="otp" maxlength="6" minlength="6" pattern="[0-9]{6}" placeholder="Nhập mã OTP" required/>
+                </label>
+
+                <button type="submit" class="btn btn-primary full-width">Xác thực OTP</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="otp-resend-wrap">
+        <form th:action="@{/forgot-password/resend-otp}" method="post">
+            <button type="submit" class="btn btn-ghost">Gửi lại mã OTP</button>
+        </form>
+    </div>
+</section>
+</body>
+</html>

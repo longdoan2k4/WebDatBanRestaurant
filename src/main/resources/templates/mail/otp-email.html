@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>OTP Rivière Restaurant</title>
+</head>
+<body style="margin:0;padding:0;background:#f7f2e8;font-family:Georgia,'Times New Roman',serif;color:#2d2016;">
+<table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background:#f7f2e8;padding:24px 12px;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="640" cellspacing="0" cellpadding="0" style="max-width:640px;background:#fffdf8;border:2px solid #6b4620;border-radius:20px;overflow:hidden;box-shadow:0 16px 36px rgba(45,32,22,.14);">
+                <tr>
+                    <td style="padding:28px 30px;background:linear-gradient(180deg,#fff7ea 0%, #f8eddc 100%);border-bottom:1px solid #d7c1a0;">
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0">
+                            <tr>
+                                <td style="vertical-align:middle;width:56px;">
+                                    <div style="width:44px;height:44px;border-radius:12px;background:#8b5d2e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;">R</div>
+                                </td>
+                                <td style="vertical-align:middle;">
+                                    <h1 style="margin:0;font-size:26px;line-height:1.2;color:#3c2613;">Rivière Restaurant</h1>
+                                    <p style="margin:4px 0 0;font-size:14px;color:#7b5f43;letter-spacing:.05em;text-transform:uppercase;">Fine Dining Experience</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:30px 30px 16px;">
+                        <p style="margin:0 0 14px;font-size:18px;">Kính chào <strong th:text="${recipientName}">Quý khách</strong>,</p>
+                        <p style="margin:0 0 18px;font-size:16px;line-height:1.75;color:#4b3a2a;">
+                            Cảm ơn bạn đã đăng nhập tại <strong>Rivière Restaurant</strong>.
+                            Vui lòng sử dụng mã OTP dưới đây để hoàn tất xác thực tài khoản.
+                        </p>
+
+                        <div style="margin:18px 0 20px;padding:20px;border:1px dashed #ad7b42;background:#fff4e6;border-radius:14px;text-align:center;">
+                            <p style="margin:0 0 8px;font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:#8a6238;">Mã xác thực OTP</p>
+                            <p th:text="${otpCode}" style="margin:0;font-size:42px;letter-spacing:.28em;font-weight:700;color:#5a3516;">123456</p>
+                            <p style="margin:8px 0 0;font-size:14px;color:#7a5d43;">Hiệu lực trong <strong th:text="${expiryMinutes}">5</strong> phút</p>
+                        </div>
+
+                        <p style="margin:0 0 8px;font-size:14px;color:#7a5d43;line-height:1.75;">
+                            Nếu bạn không thực hiện thao tác này, vui lòng bỏ qua email và đổi mật khẩu tài khoản để đảm bảo an toàn.
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:18px 30px 26px;border-top:1px solid #e7d7be;background:#fffaf2;">
+                        <p style="margin:0;font-size:12px;line-height:1.7;color:#8b7359;">
+                            Email bảo mật tự động từ Rivière Restaurant. Vui lòng không chia sẻ mã OTP cho bất kỳ ai.
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+</body>
+</html>
